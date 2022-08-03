@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.validator.FilmValidator;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +19,6 @@ import java.util.Map;
 public class FilmController {
     private int currId = 0;
     private final Map<Integer, Film> films = new HashMap<>();
-    private final LocalDate CINEMA_BIRTH = LocalDate.of(1895, 12, 28);
 
     @GetMapping("/films")
     public List<Film> findAll() {
@@ -28,7 +27,7 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) throws ValidationException {
-        filmValidate(film);
+        FilmValidator.validate(film);
         film.setId(++currId);
         films.put(currId, film);
         log.info("Фильм с id=" + film.getId() + "создан");
@@ -36,8 +35,8 @@ public class FilmController {
     }
 
     @PutMapping(value = "/films")
-    public Film update(@RequestBody Film film) throws ValidationException, NotFoundException{
-        filmValidate(film);
+    public Film update(@RequestBody Film film) throws ValidationException, NotFoundException {
+        FilmValidator.validate(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Фильм с id=" + film.getId() + " обновлен");
@@ -45,24 +44,6 @@ public class FilmController {
             throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
         }
         return film;
-    }
-
-    private void filmValidate(Film film) throws ValidationException {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название не может быть пустым");
-        }
-
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-
-        if (LocalDate.parse(film.getReleaseDate()).isBefore(CINEMA_BIRTH)) {
-            throw new ValidationException("Дата релиза — не раньше:" + CINEMA_BIRTH);
-        }
-
-        if (film.getDuration() <= 0.0) {
-            throw new ValidationException("Продолжительность должна быть положительной");
-        }
     }
 
     @ExceptionHandler(ValidationException.class)
