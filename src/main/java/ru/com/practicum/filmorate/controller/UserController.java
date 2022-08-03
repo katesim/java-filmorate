@@ -3,7 +3,9 @@ package ru.com.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.bind.annotation.*;
+import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.User;
 
@@ -25,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody User user) throws ValidationException {
         userValidate(user);
         user.setId(++currId);
         users.put(currId, user);
@@ -34,13 +36,13 @@ public class UserController {
     }
 
     @PutMapping(value = "/users")
-    public User update(@RequestBody User user) {
+    public User update(@RequestBody User user) throws ValidationException, NotFoundException {
         userValidate(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("Пользователь с id=" + user.getId() + " обновлен");
         } else {
-            log.warn("Пользователь с id=" + user.getId() + " несуществует");
+            throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
         }
         return user;
     }
@@ -77,6 +79,17 @@ public class UserController {
         log.error(exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleNotFoundException(
+            NotFoundException exception
+    ) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
 }

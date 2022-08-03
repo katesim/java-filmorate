@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
 
@@ -26,7 +27,7 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films")
-    public Film create(@RequestBody Film film) {
+    public Film create(@RequestBody Film film) throws ValidationException {
         filmValidate(film);
         film.setId(++currId);
         films.put(currId, film);
@@ -35,13 +36,13 @@ public class FilmController {
     }
 
     @PutMapping(value = "/films")
-    public Film update(@RequestBody Film film) {
+    public Film update(@RequestBody Film film) throws ValidationException, NotFoundException{
         filmValidate(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Фильм с id=" + film.getId() + " обновлен");
         } else {
-            log.warn("Фильм с id=" + film.getId() + " несуществует");
+            throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
         }
         return film;
     }
@@ -72,6 +73,17 @@ public class FilmController {
         log.error(exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleNotFoundException(
+            NotFoundException exception
+    ) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
 }
