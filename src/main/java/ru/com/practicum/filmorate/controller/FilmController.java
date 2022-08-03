@@ -30,7 +30,7 @@ public class FilmController {
         FilmValidator.validate(film);
         film.setId(++currId);
         films.put(currId, film);
-        log.info("Фильм с id=" + film.getId() + "создан");
+        log.info("Фильм с id={} создан", film.getId());
         return film;
     }
 
@@ -39,7 +39,7 @@ public class FilmController {
         FilmValidator.validate(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            log.info("Фильм с id=" + film.getId() + " обновлен");
+            log.info("Фильм с id={} обновлен", film.getId());
         } else {
             throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
         }

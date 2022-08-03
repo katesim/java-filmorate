@@ -30,7 +30,7 @@ public class UserController {
         UserValidator.validate(user);
         user.setId(++currId);
         users.put(currId, user);
-        log.info("Пользователь с id=" + user.getId() + "создан");
+        log.info("Пользователь с id={} создан", user.getId());
         return user;
     }
 
@@ -39,7 +39,7 @@ public class UserController {
         UserValidator.validate(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
-            log.info("Пользователь с id=" + user.getId() + " обновлен");
+            log.info("Пользователь с id={} обновлен", user.getId());
         } else {
             throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
         }
