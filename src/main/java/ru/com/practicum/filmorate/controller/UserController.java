@@ -28,6 +28,10 @@ public class UserController {
     @PostMapping(value = "/users")
     public User create(@RequestBody User user) throws ValidationException {
         UserValidator.validate(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("Поскольку имя не было передано, вместо него будет использован логин");
+            user.setName(user.getLogin());
+        }
         user.setId(++currId);
         users.put(currId, user);
         log.info("Пользователь с id={} создан", user.getId());

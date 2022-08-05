@@ -59,15 +59,6 @@ class UserValidatorTest {
     }
 
     @Test
-    void validate_nameIsEmpty_isValidAndNameIsUsed() {
-        User user = new User(ID, EMAIL, LOGIN, "", BIRTHDAY);
-        User expectedUser = new User(ID, EMAIL, LOGIN, LOGIN, BIRTHDAY);
-
-        UserValidator.validate(user);
-        assertEquals(expectedUser, user);
-    }
-
-    @Test
     void validate_birthdayInTheFuture_isNotValid() {
         LocalDate now = LocalDate.now();
         User user = new User(ID, EMAIL, LOGIN, NAME, now.plusDays(1).format(DateTimeFormatter.ISO_DATE));

@@ -25,10 +25,6 @@ public class UserValidator {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("Поскольку имя не было передано, вместо него будет использован логин");
-            user.setName(user.getLogin());
-        }
     }
 
 }
