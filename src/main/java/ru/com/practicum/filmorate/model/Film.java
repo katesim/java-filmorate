@@ -3,6 +3,7 @@ package ru.com.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -13,7 +14,7 @@ public class Film {
     private String description;
     private String releaseDate;
     private int duration;
-    private Set<Long> likes;
+    private final Set<Long> likes = new HashSet<>();
 
     public void addLike(Long userId) {
         likes.add(userId);
@@ -23,7 +24,7 @@ public class Film {
         return likes.remove(userId);
     }
 
-    public int countLikes(){
+    public int countLikes() {
         return likes.size();
     }
 }
