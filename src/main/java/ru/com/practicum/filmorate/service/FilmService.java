@@ -19,7 +19,7 @@ public class FilmService {
     FilmStorage filmStorage;
     private final int TOP = 10;
 
-    public Film addLike(Long userId, Long id) throws NotFoundException {
+    public Film addLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
         film.addLike(userId);
         filmStorage.update(film);
@@ -27,7 +27,7 @@ public class FilmService {
         return film;
     }
 
-    public Film deleteLike(Long userId, Long id) throws NotFoundException {
+    public Film removeLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
         boolean result = film.removeLike(userId);
         if (!result) {
@@ -39,12 +39,12 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getTop(int count) {
-        if (count == 0) {
+    public List<Film> getTop(Integer count) {
+        if (count == null) {
             count = TOP;
         }
         List<Film> films = filmStorage.getAll();
-        films.sort(Comparator.comparingInt(Film::countLikes));
+        films.sort(Comparator.comparingInt(Film::countLikes).reversed());
         return films.stream().limit(count).collect(Collectors.toList());
     }
 

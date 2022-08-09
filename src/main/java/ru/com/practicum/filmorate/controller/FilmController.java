@@ -1,14 +1,13 @@
 package ru.com.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.service.FilmService;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
-import ru.com.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
 import java.util.List;
@@ -16,11 +15,19 @@ import java.util.List;
 @Slf4j
 @RestController
 public class FilmController {
-    private final FilmStorage filmStorage = new InMemoryFilmStorage();
+    @Autowired
+    FilmStorage filmStorage;
+    @Autowired
+    FilmService filmService;
 
     @GetMapping("/films")
     public List<Film> findAll() {
         return filmStorage.getAll();
+    }
+
+    @GetMapping("/films/{id}")
+    public Film findById(@PathVariable Long id) {
+        return filmStorage.getById(id);
     }
 
     @PostMapping(value = "/films")
@@ -37,23 +44,19 @@ public class FilmController {
         return film;
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handleValidationException(
-            ValidationException exception
-    ) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
+    @PutMapping(value = "/films/{id}/like/{userId}")
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.addLike(id, userId);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(
-            NotFoundException exception
-    ) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(exception.getMessage());
+    @DeleteMapping(value = "/films/{id}/like/{userId}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.removeLike(id, userId);
     }
+
+    @GetMapping(value = "/films/popular")
+    public List<Film> getTop(@RequestParam(required = false) Integer count) {
+        return filmService.getTop(count);
+    }
+
 }

@@ -17,25 +17,28 @@ public class UserService {
     @Autowired
     UserStorage userStorage;
 
-    public void addFriend(Long friendId, Long id) throws NotFoundException {
+    public void madeFriends(Long id, Long friendId) throws NotFoundException {
         User user = userStorage.getById(id);
-        User friend = userStorage.getById(id);
+        User friend = userStorage.getById(friendId);
         user.addFriend(friendId);
         friend.addFriend(id);
-        log.info("Пользователи {} и {} теперь друзья", friendId, id);
+        log.info("Пользователи {} и {} теперь друзья", id, friendId);
     }
 
-    public void removeFriend(Long friendId, Long id) throws NotFoundException {
+    public void removeFriends(Long id, Long friendId) throws NotFoundException {
         User user = userStorage.getById(id);
-        User friend = userStorage.getById(id);
+        User friend = userStorage.getById(friendId);
         user.removeFriend(friendId);
         friend.removeFriend(id);
-        log.info("Пользователи {} и {} больше не друзья", friendId, id);
+        log.info("Пользователи {} и {} больше не друзья", id, friendId);
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
-        Set<Long> friendsIds = userStorage.getById(id).getFriends();
         List<User> friends = new ArrayList<>();
+        Set<Long> friendsIds = userStorage.getById(id).getFriends();
+        if (friendsIds == null) {
+            return friends;
+        }
         for (Long friendId : friendsIds) {
             User friend = userStorage.getById(friendId);
             friends.add(friend);

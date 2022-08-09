@@ -3,6 +3,7 @@ package ru.com.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -13,7 +14,7 @@ public class User {
     private String login;
     private String name;
     private String birthday;
-    private Set<Long> friends;
+    private final Set<Long> friends = new HashSet<>();
 
     public void addFriend(Long userId) {
         friends.add(userId);
