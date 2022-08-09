@@ -7,47 +7,37 @@ import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.storage.film.FilmStorage;
+import ru.com.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 public class FilmController {
-    private int currId = 0;
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage();
 
     @GetMapping("/films")
     public List<Film> findAll() {
-        return new ArrayList<>(films.values());
+        return filmStorage.getAll();
     }
 
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) throws ValidationException {
         FilmValidator.validate(film);
-        film.setId(++currId);
-        films.put(currId, film);
-        log.info("Фильм с id={} создан", film.getId());
+        filmStorage.add(film);
         return film;
     }
 
     @PutMapping(value = "/films")
     public Film update(@RequestBody Film film) throws ValidationException, NotFoundException {
         FilmValidator.validate(film);
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("Фильм с id={} обновлен", film.getId());
-        } else {
-            throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
-        }
+        filmStorage.update(film);
         return film;
     }
 
     @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleValidationException(
             ValidationException exception
     ) {
@@ -58,7 +48,6 @@ public class FilmController {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleNotFoundException(
             NotFoundException exception
     ) {
