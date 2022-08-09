@@ -23,8 +23,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(Long id) {
-        return films.getOrDefault(id, null);
+    public Film getById(Long id) throws NotFoundException {
+        Film film = films.getOrDefault(id, null);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
+        }
+        return film;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film update(Film film) throws NotFoundException{
+    public Film update(Film film) throws NotFoundException {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Фильм с id={} обновлен", film.getId());
@@ -51,4 +55,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.remove(film.getId());
         log.info("Фильм с id={} удален", film.getId());
     }
+
 }
