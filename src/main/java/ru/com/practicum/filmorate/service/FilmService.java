@@ -31,8 +31,7 @@ public class FilmService {
         Film film = filmStorage.getById(id);
         boolean result = film.removeLike(userId);
         if (!result) {
-            log.warn("У фильма с id={} не был удален лайк, тк текущее число лайков уже равно нулю", film.getId());
-            return film;
+            throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
         }
         filmStorage.update(film);
         log.info("Пользователь {} удалил лайк с фильма с id={}. Всего лайков:{}", userId, film.getId(), film.getLikes());
