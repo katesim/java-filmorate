@@ -15,7 +15,6 @@ class UserValidatorTest {
     private static final String EMAIL = "myname@ya.ru";
     private static final String LOGIN = "login";
     private static final String BIRTHDAY = "1999-01-01";
-    //    private static final Set<Long> FRIENDS = {};
     private static final String BLANK_STR = "   ";
 
     @Test

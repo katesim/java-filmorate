@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 @RestController
 public class UserController {
     @Autowired
-    UserStorage userStorage;
+    private UserStorage userStorage;
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @GetMapping("/users")
     public List<User> findAll() {

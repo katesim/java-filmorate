@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmService {
     @Autowired
-    FilmStorage filmStorage;
+    private FilmStorage filmStorage;
     private final int TOP = 10;
 
     public Film addLike(Long id, Long userId) throws NotFoundException {
@@ -34,7 +34,8 @@ public class FilmService {
             throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
         }
         filmStorage.update(film);
-        log.info("Пользователь {} удалил лайк с фильма с id={}. Всего лайков:{}", userId, film.getId(), film.getLikes());
+        log.info("Пользователь {} удалил лайк с фильма с id={}. Всего лайков:{}",
+                userId, film.getId(), film.getLikes());
         return film;
     }
 
