@@ -16,9 +16,9 @@ import java.util.List;
 @RestController
 public class FilmController {
     @Autowired
-    FilmStorage filmStorage;
+    private FilmStorage filmStorage;
     @Autowired
-    FilmService filmService;
+    private FilmService filmService;
 
     @GetMapping("/films")
     public List<Film> findAll() {

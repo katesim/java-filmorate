@@ -15,7 +15,7 @@ import java.util.Set;
 @Slf4j
 public class UserService {
     @Autowired
-    UserStorage userStorage;
+    private UserStorage userStorage;
 
     public void madeFriends(Long id, Long friendId) throws NotFoundException {
         User user = userStorage.getById(id);
