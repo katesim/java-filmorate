@@ -1,7 +1,7 @@
 package ru.com.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FilmService {
-    @Autowired
-    private FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
     private final int TOP = 10;
 
     public Film addLike(Long id, Long userId) throws NotFoundException {
