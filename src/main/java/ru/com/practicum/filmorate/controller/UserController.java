@@ -1,7 +1,7 @@
 package ru.com.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
@@ -15,11 +15,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserStorage userStorage;
-    @Autowired
-    private UserService userService;
+    private final UserStorage userStorage;
+    private final UserService userService;
 
     @GetMapping("/users")
     public List<User> findAll() {

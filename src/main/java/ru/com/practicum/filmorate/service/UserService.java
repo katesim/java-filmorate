@@ -1,7 +1,7 @@
 package ru.com.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.User;
@@ -13,9 +13,9 @@ import java.util.Set;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
 
     public void madeFriends(Long id, Long friendId) throws NotFoundException {
         User user = userStorage.getById(id);
