@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmValidatorTest {
-    private static final int ID = 123;
+    private static final Long ID = 123L;
     private static final String NAME = "MyName";
     private static final String DESCRIPTION = "my description";
     private static final String RELEASE_DATE = "1999-01-01";

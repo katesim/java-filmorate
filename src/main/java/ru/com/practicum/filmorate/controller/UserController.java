@@ -1,28 +1,33 @@
 package ru.com.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.User;
+import ru.com.practicum.filmorate.service.UserService;
+import ru.com.practicum.filmorate.storage.user.UserStorage;
 import ru.com.practicum.filmorate.validator.UserValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class UserController {
-    private int currId = 0;
-    private final Map<Integer, User> users = new HashMap<>();
+    private final UserStorage userStorage;
+    private final UserService userService;
 
     @GetMapping("/users")
     public List<User> findAll() {
-        return new ArrayList<>(users.values());
+        return userStorage.getAll();
+    }
+
+    @GetMapping("/users/{id}")
+    public User findById(@PathVariable Long id) {
+        return userStorage.getById(id);
     }
 
     @PostMapping(value = "/users")
@@ -32,43 +37,37 @@ public class UserController {
             log.warn("Поскольку имя не было передано, вместо него будет использован логин");
             user.setName(user.getLogin());
         }
-        user.setId(++currId);
-        users.put(currId, user);
-        log.info("Пользователь с id={} создан", user.getId());
+        userStorage.add(user);
         return user;
     }
 
     @PutMapping(value = "/users")
     public User update(@RequestBody User user) throws ValidationException, NotFoundException {
         UserValidator.validate(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("Пользователь с id={} обновлен", user.getId());
-        } else {
-            throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
-        }
+        userStorage.update(user);
         return user;
     }
 
-    @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleValidationException(
-            ValidationException exception
-    ) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
+    @PutMapping(value = "/users/{id}/friends/{friendId}")
+    public void madeFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.madeFriends(id, friendId);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleNotFoundException(
-            NotFoundException exception
-    ) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(exception.getMessage());
+    @DeleteMapping(value = "/users/{id}/friends/{friendId}")
+    public void removeFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.removeFriends(id, friendId);
     }
+
+    @GetMapping(value = "/users/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.getAllFriends(id);
+    }
+
+    @GetMapping(value = "/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        List<User> first = userService.getAllFriends(id);
+        List<User> second = userService.getAllFriends(otherId);
+        return first.stream().filter(second::contains).collect(Collectors.toList());
+    }
+
 }
