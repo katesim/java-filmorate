@@ -7,7 +7,6 @@ import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.service.FilmService;
-import ru.com.practicum.filmorate.validator.FilmValidator;
 
 import java.util.List;
 
@@ -29,13 +28,11 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) throws ValidationException {
-        FilmValidator.validate(film);
         return filmService.add(film);
     }
 
     @PutMapping(value = "/films")
     public Film update(@RequestBody Film film) throws ValidationException, NotFoundException {
-        FilmValidator.validate(film);
         return filmService.update(film);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
+import ru.com.practicum.filmorate.validator.FilmValidator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,10 +29,12 @@ public class FilmService {
     }
 
     public Film add(Film film) {
+        FilmValidator.validate(film);
         return filmStorage.add(film);
     }
 
     public Film update(Film film) {
+        FilmValidator.validate(film);
         return filmStorage.update(film);
     }
 
