@@ -17,6 +17,22 @@ import java.util.Set;
 public class UserService {
     private final UserStorage userStorage;
 
+    public List<User> getAll() {
+        return userStorage.getAll();
+    }
+
+    public User getById(Long id) {
+        return userStorage.getById(id);
+    }
+
+    public User add(User user) {
+        return userStorage.add(user);
+    }
+
+    public User update(User user) {
+        return userStorage.update(user);
+    }
+
     public void madeFriends(Long id, Long friendId) throws NotFoundException {
         User user = userStorage.getById(id);
         User friend = userStorage.getById(friendId);

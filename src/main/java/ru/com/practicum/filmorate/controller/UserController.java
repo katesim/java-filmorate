@@ -17,17 +17,16 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @GetMapping("/users")
     public List<User> findAll() {
-        return userStorage.getAll();
+        return userService.getAll();
     }
 
     @GetMapping("/users/{id}")
     public User findById(@PathVariable Long id) {
-        return userStorage.getById(id);
+        return userService.getById(id);
     }
 
     @PostMapping(value = "/users")
@@ -37,15 +36,14 @@ public class UserController {
             log.warn("Поскольку имя не было передано, вместо него будет использован логин");
             user.setName(user.getLogin());
         }
-        userStorage.add(user);
-        return user;
+
+        return userService.add(user);
     }
 
     @PutMapping(value = "/users")
     public User update(@RequestBody User user) throws ValidationException, NotFoundException {
         UserValidator.validate(user);
-        userStorage.update(user);
-        return user;
+        return userService.update(user);
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendId}")
