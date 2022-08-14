@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
+    private final static int TOP = 10;
     private final FilmStorage filmStorage;
-    private final int TOP = 10;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
