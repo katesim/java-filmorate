@@ -1,61 +1,70 @@
 package ru.com.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.service.FilmService;
-import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 public class FilmController {
-    private final FilmStorage filmStorage;
-    private final FilmService filmService;
+    private int currId = 0;
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping("/films")
     public List<Film> findAll() {
-        return filmStorage.getAll();
-    }
-
-    @GetMapping("/films/{id}")
-    public Film findById(@PathVariable Long id) {
-        return filmStorage.getById(id);
+        return new ArrayList<>(films.values());
     }
 
     @PostMapping(value = "/films")
     public Film create(@RequestBody Film film) throws ValidationException {
         FilmValidator.validate(film);
-        filmStorage.add(film);
+        film.setId(++currId);
+        films.put(currId, film);
+        log.info("Фильм с id={} создан", film.getId());
         return film;
     }
 
     @PutMapping(value = "/films")
     public Film update(@RequestBody Film film) throws ValidationException, NotFoundException {
         FilmValidator.validate(film);
-        filmStorage.update(film);
+        if (films.containsKey(film.getId())) {
+            films.put(film.getId(), film);
+            log.info("Фильм с id={} обновлен", film.getId());
+        } else {
+            throw new NotFoundException("Фильм с id=" + film.getId() + " несуществует");
+        }
         return film;
     }
 
-    @PutMapping(value = "/films/{id}/like/{userId}")
-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.addLike(id, userId);
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleValidationException(
+            ValidationException exception
+    ) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
     }
 
-    @DeleteMapping(value = "/films/{id}/like/{userId}")
-    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.removeLike(id, userId);
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleNotFoundException(
+            NotFoundException exception
+    ) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
     }
-
-    @GetMapping(value = "/films/popular")
-    public List<Film> getTop(@RequestParam(required = false) Integer count) {
-        return filmService.getTop(count);
-    }
-
 }
