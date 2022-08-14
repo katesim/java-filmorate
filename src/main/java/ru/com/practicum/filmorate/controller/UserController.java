@@ -7,8 +7,6 @@ import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.service.UserService;
-import ru.com.practicum.filmorate.storage.user.UserStorage;
-import ru.com.practicum.filmorate.validator.UserValidator;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,18 +29,11 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User create(@RequestBody User user) throws ValidationException {
-        UserValidator.validate(user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("Поскольку имя не было передано, вместо него будет использован логин");
-            user.setName(user.getLogin());
-        }
-
         return userService.add(user);
     }
 
     @PutMapping(value = "/users")
     public User update(@RequestBody User user) throws ValidationException, NotFoundException {
-        UserValidator.validate(user);
         return userService.update(user);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.storage.user.UserStorage;
+import ru.com.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,17 @@ public class UserService {
     }
 
     public User add(User user) {
+        UserValidator.validate(user);
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("Поскольку имя не было передано, вместо него будет использован логин");
+            user.setName(user.getLogin());
+        }
+
         return userStorage.add(user);
     }
 
     public User update(User user) {
+        UserValidator.validate(user);
         return userStorage.update(user);
     }
 
