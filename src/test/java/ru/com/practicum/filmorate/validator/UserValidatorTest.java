@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserValidatorTest {
-    private static final Long ID = 123L;
+    private static final int ID = 123;
     private static final String NAME = "MyName";
     private static final String EMAIL = "myname@ya.ru";
     private static final String LOGIN = "login";
