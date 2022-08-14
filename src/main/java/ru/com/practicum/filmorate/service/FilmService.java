@@ -19,6 +19,22 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final int TOP = 10;
 
+    public List<Film> getAll() {
+        return filmStorage.getAll();
+    }
+
+    public Film getById(Long id) {
+        return filmStorage.getById(id);
+    }
+
+    public Film add(Film film) {
+        return filmStorage.add(film);
+    }
+
+    public Film update(Film film) {
+        return filmStorage.update(film);
+    }
+
     public Film addLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
         film.addLike(userId);
