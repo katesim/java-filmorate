@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -14,6 +15,8 @@ public class Film {
     private String description;
     private String releaseDate;
     private int duration;
+    private List<Genre> genres;
+    private MPARating mpaRating;
     private final Set<Long> likes = new HashSet<>();
 
     public void addLike(Long userId) {
