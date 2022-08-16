@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final static int TOP = 10;
     private final FilmStorage filmStorage;
+    private final GenreService genreService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -30,11 +31,18 @@ public class FilmService {
 
     public Film add(Film film) {
         FilmValidator.validate(film);
-        return filmStorage.add(film);
+        Film receivedFilm = filmStorage.add(film);
+        if (film.getGenres() != null){
+            genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
+        }
+        return receivedFilm;
     }
 
     public Film update(Film film) {
         FilmValidator.validate(film);
+        if (film.getGenres() != null){
+            genreService.updateForFilm(film.getId(), film.getGenres());
+        }
         return filmStorage.update(film);
     }
 
