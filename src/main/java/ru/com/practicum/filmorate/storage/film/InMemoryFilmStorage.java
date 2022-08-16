@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
 @Slf4j
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private Long currId = 0L;
     private final Map<Long, Film> films = new HashMap<>();
-
 
     @Override
     public List<Film> getAll() {
