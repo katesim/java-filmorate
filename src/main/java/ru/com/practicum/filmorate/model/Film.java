@@ -16,7 +16,7 @@ public class Film {
     private String releaseDate;
     private int duration;
     private List<Genre> genres;
-    private MPARating mpaRating;
+    private MPARating mpa;
     private final Set<Long> likes = new HashSet<>();
 
     public void addLike(Long userId) {
