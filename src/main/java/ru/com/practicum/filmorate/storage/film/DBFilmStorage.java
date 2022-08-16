@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.model.Genre;
-import ru.com.practicum.filmorate.model.MPARating;
+import ru.com.practicum.filmorate.model.MPA;
 import ru.com.practicum.filmorate.service.GenreService;
 
 import java.sql.Date;
@@ -37,7 +37,7 @@ public class DBFilmStorage implements FilmStorage {
                         "f.release_date, " +
                         "f.duration, " +
                         "f.mpa_id, " +
-                        "m.name AS mpa " +
+                        "m.name AS mpa_name " +
                         "FROM films AS f " +
                         "JOIN MPA_ratings AS m" +
                         "    ON m.id = f.mpa_id;";
@@ -53,7 +53,7 @@ public class DBFilmStorage implements FilmStorage {
                         "f.release_date, " +
                         "f.duration, " +
                         "f.mpa_id, " +
-                        "m.name AS mpa " +
+                        "m.name AS mpa_name " +
                 "FROM films AS f " +
                 "JOIN MPA_ratings AS m" +
                 "    ON m.id = f.mpa_id " +
@@ -113,10 +113,10 @@ public class DBFilmStorage implements FilmStorage {
         String releaseDate = rs.getDate("release_date").toString();
         int duration = rs.getInt("duration");
         List<Genre> genres = genreService.getByFilmId(id);
-        MPARating mpaRating = new MPARating(
+        MPA mpa = new MPA(
                 rs.getLong("mpa_id"),
-                rs.getString("mpa")
+                rs.getString("mpa_name")
         );
-        return new Film(id, name, description, releaseDate, duration, genres, mpaRating);
+        return new Film(id, name, description, releaseDate, duration, genres, mpa);
     }
 }

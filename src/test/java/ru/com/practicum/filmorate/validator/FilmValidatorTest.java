@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.model.Genre;
-import ru.com.practicum.filmorate.model.MPARating;
+import ru.com.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,7 +20,7 @@ class FilmValidatorTest {
     private static final String RELEASE_DATE = "1999-01-01";
     private static final int DURATION = 150;
     private static final List<Genre> GENRES = new ArrayList<>();
-    private static final MPARating MPA = new MPARating(1L, "PG");
+    private static final ru.com.practicum.filmorate.model.MPA MPA = new MPA(1L, "PG");
     private static final String BLANK_STR = "   ";
 
     private static final LocalDate CINEMA_BIRTH = LocalDate.of(1895, 12, 28);
