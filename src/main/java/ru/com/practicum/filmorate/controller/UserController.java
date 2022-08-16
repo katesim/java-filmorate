@@ -38,7 +38,15 @@ public class UserController {
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendId}")
-    public void madeFriends(@PathVariable Long id, @PathVariable Long friendId) {
+    public void madeFriends(@PathVariable Long id, @PathVariable Long friendId) throws NotFoundException {
+        User user = userService.getById(id);
+        User friend = userService.getById(friendId);
+        if (user == null) {
+            throw  new NotFoundException("Пользователь с id=" + id + " не существует");
+        }
+        if (user == friend) {
+            throw  new NotFoundException("Пользователь с id=" + friendId + " не существует");
+        }
         userService.madeFriends(id, friendId);
     }
 
