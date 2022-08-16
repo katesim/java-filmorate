@@ -106,6 +106,48 @@ public class DBFilmStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, film.getId());
     }
 
+    @Override
+    public void addLike(Long id, Long userId) {
+        String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
+        jdbcTemplate.update(sqlQuery, userId, id);
+    }
+
+    @Override
+    public void removeLike(Long id, Long userId) {
+        String sqlQuery = "DELETE FROM likes_list WHERE film_id = ? AND user_id = ?;";
+        jdbcTemplate.update(sqlQuery, id, userId);
+    }
+
+    @Override
+    public boolean hasLikeFromUser(Long id, Long userId) {
+        String sqlQuery = "SELECT COUNT(user_id) FROM likes_list WHERE film_id = ? AND user_id = ?;";
+        int like = jdbcTemplate.queryForObject(sqlQuery, Integer.class, id, userId);
+        return like != 0;
+    }
+
+    @Override
+    public List<Film> getTop(Integer count) {
+        String sqlQuery =
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                        "FROM films AS f " +
+                "JOIN MPA_ratings AS m" +
+                "    ON m.id = f.mpa_id " +
+                "LEFT JOIN (SELECT film_id, " +
+                "      COUNT(user_id) rate " +
+                "      FROM likes_list " +
+                "      GROUP BY film_id " +
+                ") r ON f.id = r.film_id " +
+                "ORDER BY r.rate DESC " +
+                "LIMIT ?;";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
+    }
+
     private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");

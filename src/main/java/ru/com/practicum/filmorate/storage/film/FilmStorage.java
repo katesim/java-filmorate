@@ -16,4 +16,11 @@ public interface FilmStorage {
 
     void delete(Film film);
 
+    void addLike(Long id, Long userId);
+
+    void removeLike(Long id, Long userId);
+
+    boolean hasLikeFromUser(Long id, Long userId);
+
+    List<Film> getTop(Integer count);
 }
