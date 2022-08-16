@@ -119,6 +119,6 @@ public class DBUserStorage implements UserStorage {
         String birthday = rs.getDate("birthday").toString();
 
         List<Long> friends = getUserFriendsById(id);
-        return new User(id, email, login, name, birthday, friends);
+        return new User(id, email, login, name, birthday);
     }
 }

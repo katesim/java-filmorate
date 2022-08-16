@@ -1,12 +1,13 @@
 package ru.com.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@SuperBuilder
 public class Film {
     private Long id;
     private String name;
