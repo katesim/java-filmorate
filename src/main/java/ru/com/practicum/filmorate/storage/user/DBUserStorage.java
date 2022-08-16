@@ -35,7 +35,7 @@ public class DBUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById(Long id) {
+    public User getById(Long id) throws NotFoundException {
         String sqlQuery =
                 "SELECT u.id, " +
                         "u.email, " +
@@ -90,6 +90,27 @@ public class DBUserStorage implements UserStorage {
         jdbcTemplate.update(sqlQuery, user.getId());
     }
 
+    @Override
+    public void madeFriends(Long userId, Long friendId){
+        String sqlQuery = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?);";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public void removeFriends(Long userId, Long friendId){
+        String sqlQuery = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?;";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public List<Long> getUserFriendsById(Long userId) throws NotFoundException {
+        String sqlQuery =
+                "SELECT fr.friend_id, " +
+                        "FROM friendships AS fr " +
+                        "WHERE fr.user_id = ?;";
+        return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
+    }
+
     private User makeUser(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String email = rs.getString("email");
@@ -97,8 +118,7 @@ public class DBUserStorage implements UserStorage {
         String name = rs.getString("name");
         String birthday = rs.getDate("birthday").toString();
 
-        // TODO брать друзей из таблицы
-        // Set<Long> friends = new HashSet<>();
-        return new User(id, email, login, name, birthday);
+        List<Long> friends = getUserFriendsById(id);
+        return new User(id, email, login, name, birthday, friends);
     }
 }
