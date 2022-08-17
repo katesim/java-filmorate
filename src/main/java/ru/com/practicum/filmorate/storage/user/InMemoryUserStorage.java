@@ -58,15 +58,16 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void madeFriends(Long userId, Long friendId) {
 
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeFriends(Long userId, Long friendId) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Long> getUserFriendsById(Long userId) {
-        return new ArrayList<>();
+        throw new UnsupportedOperationException();
     }
 }

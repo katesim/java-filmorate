@@ -57,17 +57,17 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(Long id, Long userId) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeLike(Long id, Long userId) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean hasLikeFromUser(Long id, Long userId) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
