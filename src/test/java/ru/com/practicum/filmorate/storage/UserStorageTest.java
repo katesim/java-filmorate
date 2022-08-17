@@ -21,7 +21,7 @@ public class UserStorageTest {
     private final DBUserStorage userStorage;
 
     @Test
-    void getById_valid_id_ValidGenre() {
+    void getById_valid_id_ValidUser() {
         User testUser = User.builder()
                 .email("myname@ya.ru")
                 .login("login")
@@ -35,12 +35,12 @@ public class UserStorageTest {
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(user).hasFieldOrPropertyWithValue("id", userId)
                 );
     }
 
     @Test
     void getById_not_valid_id_empty() {
-        assertThrows(NotFoundException.class, () -> userStorage.getById(10L));
+        assertThrows(NotFoundException.class, () -> userStorage.getById(100L));
     }
 }

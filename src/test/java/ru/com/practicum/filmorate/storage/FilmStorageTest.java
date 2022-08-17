@@ -22,7 +22,7 @@ public class FilmStorageTest {
     private final DBFilmStorage filmStorage;
 
     @Test
-    void getById_valid_id_ValidGenre() {
+    void getById_valid_id_ValidFilm() {
         Film testFilm = Film.builder()
                 .name("MyName")
                 .description("my description")
@@ -37,13 +37,13 @@ public class FilmStorageTest {
         assertThat(filmOptional)
                 .isPresent()
                 .hasValueSatisfying(film ->
-                        assertThat(film).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(film).hasFieldOrPropertyWithValue("id", filmId)
                 );
     }
 
     @Test
     void getById_not_valid_id_empty() {
-        assertThrows(NotFoundException.class, () -> filmStorage.getById(10L));
+        assertThrows(NotFoundException.class, () -> filmStorage.getById(100L));
     }
 
 }
