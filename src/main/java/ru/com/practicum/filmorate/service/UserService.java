@@ -39,8 +39,16 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public void madeFriends(Long id, Long friendId) throws NotFoundException {
-        userStorage.madeFriends(id, friendId);
+    public void makeFriends(Long id, Long friendId) throws NotFoundException {
+        User user = getById(id);
+        User friend = getById(friendId);
+        if (user == null) {
+            throw  new NotFoundException("Пользователь с id=" + id + " не существует");
+        }
+        if (user == friend) {
+            throw  new NotFoundException("Пользователь с id=" + friendId + " не существует");
+        }
+        userStorage.makeFriends(id, friendId);
         log.info("Пользователь {} теперь друг {}", friendId, id);
     }
 

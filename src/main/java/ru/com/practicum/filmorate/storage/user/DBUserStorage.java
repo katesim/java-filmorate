@@ -91,7 +91,7 @@ public class DBUserStorage implements UserStorage {
     }
 
     @Override
-    public void madeFriends(Long userId, Long friendId){
+    public void makeFriends(Long userId, Long friendId){
         String sqlQuery = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
