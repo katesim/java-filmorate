@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
 @Slf4j
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private Long currId = 0L;
     private final Map<Long, Film> films = new HashMap<>();
-
 
     @Override
     public List<Film> getAll() {
@@ -54,6 +53,26 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void delete(Film film) {
         films.remove(film.getId());
         log.info("Фильм с id={} удален", film.getId());
+    }
+
+    @Override
+    public void addLike(Long id, Long userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeLike(Long id, Long userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasLikeFromUser(Long id, Long userId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Film> getTop(Integer count) {
+        return new ArrayList<>();
     }
 
 }

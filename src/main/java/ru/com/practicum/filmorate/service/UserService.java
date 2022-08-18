@@ -10,7 +10,6 @@ import ru.com.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -32,7 +31,6 @@ public class UserService {
             log.warn("Поскольку имя не было передано, вместо него будет использован логин");
             user.setName(user.getLogin());
         }
-
         return userStorage.add(user);
     }
 
@@ -41,25 +39,27 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public void madeFriends(Long id, Long friendId) throws NotFoundException {
-        User user = userStorage.getById(id);
-        User friend = userStorage.getById(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(id);
-        log.info("Пользователи {} и {} теперь друзья", id, friendId);
+    public void makeFriends(Long id, Long friendId) throws NotFoundException {
+        User user = getById(id);
+        User friend = getById(friendId);
+        if (user == null) {
+            throw  new NotFoundException("Пользователь с id=" + id + " не существует");
+        }
+        if (user == friend) {
+            throw  new NotFoundException("Пользователь с id=" + friendId + " не существует");
+        }
+        userStorage.makeFriends(id, friendId);
+        log.info("Пользователь {} теперь друг {}", friendId, id);
     }
 
     public void removeFriends(Long id, Long friendId) throws NotFoundException {
-        User user = userStorage.getById(id);
-        User friend = userStorage.getById(friendId);
-        user.removeFriend(friendId);
-        friend.removeFriend(id);
-        log.info("Пользователи {} и {} больше не друзья", id, friendId);
+        userStorage.removeFriends(id, friendId);
+        log.info("Пользователь {} больше не друг {}", friendId, id);
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
         List<User> friends = new ArrayList<>();
-        Set<Long> friendsIds = userStorage.getById(id).getFriends();
+        List<Long> friendsIds = userStorage.getUserFriendsById(id);
         if (friendsIds == null) {
             return friends;
         }

@@ -38,8 +38,8 @@ public class UserController {
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendId}")
-    public void madeFriends(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.madeFriends(id, friendId);
+    public void makeFriends(@PathVariable Long id, @PathVariable Long friendId) throws NotFoundException {
+        userService.makeFriends(id, friendId);
     }
 
     @DeleteMapping(value = "/users/{id}/friends/{friendId}")

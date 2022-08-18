@@ -54,4 +54,19 @@ public class InMemoryUserStorage implements UserStorage {
         users.remove(user.getId());
         log.info("Пользователь с id={} удален", user.getId());
     }
+
+    @Override
+    public void makeFriends(Long userId, Long friendId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeFriends(Long userId, Long friendId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Long> getUserFriendsById(Long userId) {
+        throw new UnsupportedOperationException();
+    }
 }

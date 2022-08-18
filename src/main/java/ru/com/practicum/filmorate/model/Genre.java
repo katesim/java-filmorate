@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
+
 @Data
 @AllArgsConstructor
 @SuperBuilder
-public class User {
+public class Genre {
     private Long id;
-    private String email;
-    private String login;
     private String name;
-    private String birthday;
 }

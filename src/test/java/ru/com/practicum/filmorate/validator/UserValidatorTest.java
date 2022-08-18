@@ -61,7 +61,8 @@ class UserValidatorTest {
     @Test
     void validate_birthdayInTheFuture_isNotValid() {
         LocalDate now = LocalDate.now();
-        User user = new User(ID, EMAIL, LOGIN, NAME, now.plusDays(1).format(DateTimeFormatter.ISO_DATE));
+        String nextDay = now.plusDays(1).format(DateTimeFormatter.ISO_DATE);
+        User user = new User(ID, EMAIL, LOGIN, NAME, nextDay);
 
         assertThrows(ValidationException.class, () -> UserValidator.validate(user));
     }
