@@ -45,7 +45,9 @@ public class DirectorService {
 
     public void updateForFilm(Long filmId, List<Director> directors) {
         directorStorage.deleteAllByFilmId(filmId);
-        directorStorage.addAllToFilmId(filmId, directors);
+        if (directors != null) {
+            directorStorage.addAllToFilmId(filmId, directors);
+        }
     }
 
 

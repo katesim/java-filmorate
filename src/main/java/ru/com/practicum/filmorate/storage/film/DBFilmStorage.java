@@ -5,10 +5,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Director;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.Genre;
-import ru.com.practicum.filmorate.model.MPA;
+import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.service.DirectorService;
 import ru.com.practicum.filmorate.service.GenreService;
 
@@ -42,9 +39,9 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
-                        "    ON m.id = f.mpa_id;";
+                "FROM films AS f " +
+                "JOIN MPA_ratings AS m" +
+                "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService));
     }
 
@@ -150,6 +147,56 @@ public class DBFilmStorage implements FilmStorage {
                 "ORDER BY r.rate DESC " +
                 "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), count);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy) {
+        String sqlQuery;
+        switch (sortBy) {
+            case year:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                        "FROM films_directors AS fd " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "JOIN films AS f" +
+                        "    ON f.id = fd.film_id " +
+                        "WHERE fd.director_id = ?" +
+                        "ORDER BY f.release_date;";
+                break;
+
+            case likes:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                        "FROM films_directors AS fd " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "JOIN films AS f" +
+                        "    ON f.id = fd.film_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rate " +
+                        "      FROM likes_list " +
+                        "      GROUP BY film_id " +
+                        ") r ON fd.id = r.film_id " +
+                        "WHERE fd.director_id = ?" +
+                        "ORDER BY r.rate DESC ";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + sortBy);
+        }
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
