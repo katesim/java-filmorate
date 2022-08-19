@@ -43,5 +43,10 @@ public class DirectorService {
         directorStorage.delete(id);
     }
 
+    public void updateForFilm(Long filmId, List<Director> directors) {
+        directorStorage.deleteAllByFilmId(filmId);
+        directorStorage.addAllToFilmId(filmId, directors);
+    }
+
 
 }

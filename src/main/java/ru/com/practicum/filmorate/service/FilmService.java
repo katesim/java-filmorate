@@ -17,6 +17,7 @@ public class FilmService {
     private final static int TOP = 10;
     private final FilmStorage filmStorage;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -32,13 +33,20 @@ public class FilmService {
         if (film.getGenres() != null){
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(receivedFilm.getId(), film.getDirectors());
+        }
         return receivedFilm;
     }
 
-    public Film update(Film film) {
+    public Film update(Film film) throws NotFoundException {
         FilmValidator.validate(film);
+        filmStorage.getById(film.getId());
         if (film.getGenres() != null){
             genreService.updateForFilm(film.getId(), film.getGenres());
+        }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(film.getId(), film.getDirectors());
         }
         return filmStorage.update(film);
     }

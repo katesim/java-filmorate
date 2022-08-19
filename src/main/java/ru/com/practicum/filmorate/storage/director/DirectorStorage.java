@@ -2,6 +2,7 @@ package ru.com.practicum.filmorate.storage.director;
 
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Director;
+import ru.com.practicum.filmorate.model.Genre;
 
 import java.util.List;
 
@@ -17,5 +18,9 @@ public interface DirectorStorage {
     Director update(Director director);
 
     void delete(Long id);
+
+    void addAllToFilmId(Long filmId, List<Director> directors);
+
+    void deleteAllByFilmId(Long filmId);
 
 }
