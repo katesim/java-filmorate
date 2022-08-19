@@ -1,13 +1,17 @@
 package ru.com.practicum.filmorate.storage.director;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Director;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class DBDirectorStorage implements DirectorStorage {
@@ -53,8 +57,15 @@ public class DBDirectorStorage implements DirectorStorage {
     @Override
     public Director add(Director director) {
         String sqlQuery = "INSERT INTO directors (name) VALUES (?);";
-        jdbcTemplate.update(sqlQuery, director.getName());
-        return getById(director.getId());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});
+            statement.setString(1, director.getName());
+            return statement;
+        }, keyHolder);
+
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        return director;
     }
 
     @Override
@@ -69,9 +80,9 @@ public class DBDirectorStorage implements DirectorStorage {
     }
 
     @Override
-    public void delete(Director director) {
+    public void delete(Long id) {
         String sqlQuery = "DELETE FROM directors WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, director.getId());
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     private Director makeDirector(ResultSet rs) throws SQLException {
