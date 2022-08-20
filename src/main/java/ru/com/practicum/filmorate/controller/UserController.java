@@ -59,4 +59,9 @@ public class UserController {
         return first.stream().filter(second::contains).collect(Collectors.toList());
     }
 
+    @DeleteMapping(value = "/users/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+    }
+
 }

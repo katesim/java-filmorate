@@ -29,7 +29,7 @@ public class FilmService {
     public Film add(Film film) {
         FilmValidator.validate(film);
         Film receivedFilm = filmStorage.add(film);
-        if (film.getGenres() != null){
+        if (film.getGenres() != null) {
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
         return receivedFilm;
@@ -37,7 +37,7 @@ public class FilmService {
 
     public Film update(Film film) {
         FilmValidator.validate(film);
-        if (film.getGenres() != null){
+        if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
         return filmStorage.update(film);
@@ -51,7 +51,7 @@ public class FilmService {
 
     public void removeLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
-        if (! filmStorage.hasLikeFromUser(id, userId)){
+        if (!filmStorage.hasLikeFromUser(id, userId)) {
             throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
         }
         filmStorage.removeLike(id, userId);
@@ -63,6 +63,12 @@ public class FilmService {
             count = TOP;
         }
         return filmStorage.getTop(count);
+    }
+
+    public void deleteFilm(Long filmId) {
+        filmStorage.getById(filmId);
+        filmStorage.delete(filmId);
+        log.info("Фильм c id {} удален", filmId);
     }
 
 }
