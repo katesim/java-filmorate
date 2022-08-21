@@ -1,0 +1,62 @@
+package ru.com.practicum.filmorate.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import ru.com.practicum.filmorate.exception.NotFoundException;
+import ru.com.practicum.filmorate.model.Review;
+import ru.com.practicum.filmorate.service.ReviewService;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+public class ReviewController {
+    private final ReviewService reviewService;
+
+    @GetMapping("/reviews")
+    public List<Review> getAllByFilmId(@RequestParam(required = false) Long filmId,
+                                       @RequestParam(required = false) Long count) {
+        return reviewService.getAllByFilmId(filmId, count);
+    }
+
+    @GetMapping("/reviews/{id}")
+    public Review getById(@PathVariable long id) throws NotFoundException {
+        return reviewService.getById(id);
+    }
+
+    @PostMapping("/reviews")
+    public Review add(@Valid @RequestBody Review review) {
+        return reviewService.add(review);
+    }
+
+    @PutMapping("/reviews")
+    public Review update(@Valid @RequestBody Review review) {
+        return reviewService.update(review);
+    }
+
+    @DeleteMapping("/reviews/{id}")
+    public void deleteById(@PathVariable long id) {
+        reviewService.deleteById(id);
+    }
+
+    @PutMapping("/reviews/{id}/like/{userId}")
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/reviews/{id}/like/{userId}")
+    public void removeLike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.removeLike(id, userId);
+    }
+
+    @PutMapping("/reviews/{id}/dislike/{userId}")
+    public void addDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.addDislike(id, userId);
+    }
+
+    @DeleteMapping("/reviews/{id}/dislike/{userId}")
+    public void removeDislike(@PathVariable long id, @PathVariable long userId) {
+        reviewService.removeDislike(id, userId);
+    }
+}
