@@ -3,6 +3,7 @@ package ru.com.practicum.filmorate.storage.film;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
@@ -14,6 +15,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,10 +56,10 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id " +
-                "WHERE f.id = ?;";
+                        "FROM films AS f " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), id)
                 .stream()
                 .findAny()
@@ -136,16 +138,32 @@ public class DBFilmStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
                         "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id " +
-                "LEFT JOIN (SELECT film_id, " +
-                "      COUNT(user_id) rate " +
-                "      FROM likes_list " +
-                "      GROUP BY film_id " +
-                ") r ON f.id = r.film_id " +
-                "ORDER BY r.rate DESC " +
-                "LIMIT ?;";
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rate " +
+                        "      FROM likes_list " +
+                        "      GROUP BY film_id " +
+                        ") r ON f.id = r.film_id " +
+                        "ORDER BY r.rate DESC " +
+                        "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        String sqlQuary = "select film_id " +
+                "from likes_list " +
+                "where user_id = ? " +
+                "intersect select film_id " +
+                "from likes_list " +
+                "where user_id = ?" +
+                "group by user_id";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
+        List<Film> commonFilms = new ArrayList<>();
+        while (rowSet.next()) {
+            commonFilms.add(getById(rowSet.getLong("film_id")));
+        }
+        return commonFilms;
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {

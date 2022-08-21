@@ -65,4 +65,8 @@ public class FilmService {
         return filmStorage.getTop(count);
     }
 
+    public List<Film> getCommonFilms(long userId, long friendId) throws NotFoundException{
+       return filmStorage.getCommonFilms(userId, friendId);
+    }
+
 }

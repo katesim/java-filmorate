@@ -23,4 +23,6 @@ public interface FilmStorage {
     boolean hasLikeFromUser(Long id, Long userId);
 
     List<Film> getTop(Integer count);
+
+    List<Film> getCommonFilms(long userId, long friendId);
 }
