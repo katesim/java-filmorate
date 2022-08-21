@@ -58,11 +58,11 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк с фильма с id={}", userId, film.getId());
     }
 
-    public List<Film> getTop(Integer count) {
+    public List<Film> getTop(Integer count, Integer genreId, Integer year) {
         if (count == null) {
             count = TOP;
         }
-        return filmStorage.getTop(count);
+        return filmStorage.getTop(count, genreId, year);
     }
 
 }
