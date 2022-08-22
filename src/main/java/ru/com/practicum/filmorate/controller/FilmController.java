@@ -53,10 +53,14 @@ public class FilmController {
         return filmService.getTop(count);
     }
 
+    @DeleteMapping(value = "/films/{filmId}")
+    public void deleteFilm(@PathVariable Long filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
     @GetMapping(value = "/films/director/{directorId}")
     public List<Film> getFilmsByDirectorId(@PathVariable Long directorId,
                                            @RequestParam SortingTypes sortBy) throws NotFoundException {
         return filmService.getFilmsByDirectorId(directorId, sortBy);
     }
-
 }

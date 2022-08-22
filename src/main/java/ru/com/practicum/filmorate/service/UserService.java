@@ -52,6 +52,7 @@ public class UserService {
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
+        userStorage.getById(id);
         List<User> friends = new ArrayList<>();
         List<Long> friendsIds = userStorage.getUserFriendsById(id);
         if (friendsIds == null) {
@@ -62,5 +63,11 @@ public class UserService {
             friends.add(friend);
         }
         return friends;
+    }
+
+    public void deleteUser(Long id) {
+        userStorage.getById(id);
+        userStorage.delete(id);
+        log.info("Пользователь c id {} удален", id);
     }
 }
