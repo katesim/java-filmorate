@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
@@ -17,6 +18,7 @@ public class FilmService {
     private final static int TOP = 10;
     private final FilmStorage filmStorage;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -32,14 +34,19 @@ public class FilmService {
         if (film.getGenres() != null){
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(receivedFilm.getId(), film.getDirectors());
+        }
         return receivedFilm;
     }
 
-    public Film update(Film film) {
+    public Film update(Film film) throws NotFoundException {
         FilmValidator.validate(film);
+        filmStorage.getById(film.getId());
         if (film.getGenres() != null){
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
+        directorService.updateForFilm(film.getId(), film.getDirectors());
         return filmStorage.update(film);
     }
 
@@ -65,4 +72,8 @@ public class FilmService {
         return filmStorage.getTop(count);
     }
 
+    public List<Film> getFilmsByDirectorId(Long directorId, SortingTypes sortBy) throws NotFoundException{
+        directorService.getById(directorId);
+        return filmStorage.getFilmsByDirectorId(directorId, sortBy);
+    }
 }
