@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -54,5 +56,11 @@ public class FilmController {
     @DeleteMapping(value = "/films/{filmId}")
     public void deleteFilm(@PathVariable Long filmId) {
         filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping(value = "/films/director/{directorId}")
+    public List<Film> getFilmsByDirectorId(@PathVariable Long directorId,
+                                           @RequestParam SortingTypes sortBy) throws NotFoundException {
+        return filmService.getFilmsByDirectorId(directorId, sortBy);
     }
 }

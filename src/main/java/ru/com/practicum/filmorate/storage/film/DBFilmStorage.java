@@ -5,9 +5,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.Genre;
-import ru.com.practicum.filmorate.model.MPA;
+import ru.com.practicum.filmorate.model.*;
+import ru.com.practicum.filmorate.service.DirectorService;
 import ru.com.practicum.filmorate.service.GenreService;
 
 import java.sql.Date;
@@ -22,10 +21,12 @@ public class DBFilmStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
-    public DBFilmStorage(JdbcTemplate jdbcTemplate, GenreService genreService) {
+    public DBFilmStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     @Override
@@ -38,10 +39,10 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
-                        "    ON m.id = f.mpa_id;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService));
+                "FROM films AS f " +
+                "JOIN MPA_ratings AS m" +
+                "    ON m.id = f.mpa_id;";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class DBFilmStorage implements FilmStorage {
                 "JOIN MPA_ratings AS m" +
                 "    ON m.id = f.mpa_id " +
                 "WHERE f.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с id=" + id + " не существует"));
@@ -145,10 +146,60 @@ public class DBFilmStorage implements FilmStorage {
                 ") r ON f.id = r.film_id " +
                 "ORDER BY r.rate DESC " +
                 "LIMIT ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), count);
     }
 
-    private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {
+    @Override
+    public List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy) {
+        String sqlQuery;
+        switch (sortBy) {
+            case year:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                        "FROM films_directors AS fd " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "JOIN films AS f" +
+                        "    ON f.id = fd.film_id " +
+                        "WHERE fd.director_id = ?" +
+                        "ORDER BY f.release_date;";
+                break;
+
+            case likes:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                        "FROM films_directors AS fd " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "JOIN films AS f" +
+                        "    ON f.id = fd.film_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rate " +
+                        "      FROM likes_list " +
+                        "      GROUP BY film_id " +
+                        ") r ON fd.id = r.film_id " +
+                        "WHERE fd.director_id = ?" +
+                        "ORDER BY r.rate DESC ";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + sortBy);
+        }
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
+    }
+
+    private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
@@ -159,6 +210,7 @@ public class DBFilmStorage implements FilmStorage {
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_name")
         );
-        return new Film(id, name, description, releaseDate, duration, genres, mpa);
+        List<Director> directors = directorService.getByFilmId(id);
+        return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
     }
 }
