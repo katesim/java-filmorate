@@ -19,7 +19,6 @@ class DirectorValidatorTest {
     private static final String NAME = "MyName";
     private static final String BLANK_STR = "   ";
 
-
     @Test
     void validate_directorData_isValid() {
         Director director = new Director(ID, NAME);

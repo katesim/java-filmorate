@@ -89,7 +89,6 @@ public class DBDirectorStorage implements DirectorStorage {
         jdbcTemplate.update(sqlQuery, id);
     }
 
-
     @Override
     public void addAllToFilmId(Long filmId, List<Director> directors) throws NotFoundException {
         List<Director> directorsDistinct = directors.stream().distinct().collect(Collectors.toList());

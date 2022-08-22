@@ -76,5 +76,4 @@ public class FilmService {
         directorService.getById(directorId);
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
-
 }
