@@ -2,21 +2,27 @@ package ru.com.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    private final static int TOP = 10;
     private final FilmStorage filmStorage;
     private final GenreService genreService;
+    private final JdbcTemplate jdbcTemplate;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -29,7 +35,7 @@ public class FilmService {
     public Film add(Film film) {
         FilmValidator.validate(film);
         Film receivedFilm = filmStorage.add(film);
-        if (film.getGenres() != null){
+        if (film.getGenres() != null) {
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
         return receivedFilm;
@@ -37,7 +43,7 @@ public class FilmService {
 
     public Film update(Film film) {
         FilmValidator.validate(film);
-        if (film.getGenres() != null){
+        if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
         return filmStorage.update(film);
@@ -51,18 +57,36 @@ public class FilmService {
 
     public void removeLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
-        if (! filmStorage.hasLikeFromUser(id, userId)){
+        if (!filmStorage.hasLikeFromUser(id, userId)) {
             throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
         }
         filmStorage.removeLike(id, userId);
         log.info("Пользователь {} удалил лайк с фильма с id={}", userId, film.getId());
     }
 
-    public List<Film> getTop(Integer count, Integer genreId, Integer year) {
-        if (count == null) {
-            count = TOP;
-        }
-        return filmStorage.getTop(count, genreId, year);
+    public List<Film> getTop(Integer count, Long genreId, Integer year) {
+        return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
+                .sorted((f1, f2) -> (getFilmLikeId(f2.getId()) - getFilmLikeId(f1.getId())))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
+    private Stream<Film> getFilterFilmsByGenreId(Stream<Film> filmStream, Long genreId){
+        return genreId == null ? filmStream
+                : filmStream.filter(film -> film.getGenres().stream().anyMatch(g -> genreId.equals(g.getId())));
+    }
+
+    private int getFilmLikeId(long film){
+        String sqlQuery = "select user_id from likes_list where film_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
+    }
+
+    private Stream<Film> getFilterFilmsByYear(Stream<Film> filmStream, Integer year){
+        return year == null ? filmStream : filmStream.filter(film -> year.equals(LocalDate.parse(film.getReleaseDate()).getYear()));
+    }
+
+    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
+        String user_id = "user_id";
+        return rs.getLong(user_id);
+    }
 }

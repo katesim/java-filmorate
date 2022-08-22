@@ -125,94 +125,94 @@ public class DBFilmStorage implements FilmStorage {
         return like != 0;
     }
 
-    @Override
-    public List<Film> getTop(Integer count, Integer genreId, Integer year) {
-        if (genreId == null && year == null) {
-            String sqlQuery =
-                    "SELECT f.id, " +
-                            "f.name, " +
-                            "f.description, " +
-                            "f.release_date, " +
-                            "f.duration, " +
-                            "f.mpa_id, " +
-                            "m.name AS mpa_name " +
-                            "FROM films AS f " +
-                            "JOIN MPA_ratings AS m" +
-                            "    ON m.id = f.mpa_id " +
-                            "LEFT JOIN (SELECT film_id, " +
-                            "      COUNT(user_id) rate " +
-                            "      FROM likes_list " +
-                            "      GROUP BY film_id " +
-                            ") r ON f.id = r.film_id " +
-                            "ORDER BY r.rate DESC " +
-                            "LIMIT ?;";
-            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
-        } else if (genreId != null && year == null) {
-            String sqlQuery =
-                    "SELECT f.id, " +
-                            "f.name, " +
-                            "f.description, " +
-                            "f.release_date, " +
-                            "f.duration, " +
-                            "f.mpa_id, " +
-                            "m.name AS mpa_name " +
-                            "FROM films AS f " +
-                            "JOIN MPA_ratings AS m" +
-                            "    ON m.id = f.mpa_id " +
-                            "LEFT JOIN (SELECT film_id, " +
-                            "      COUNT(user_id) rate " +
-                            "      FROM likes_list " +
-                            "      GROUP BY film_id " +
-                            ") r ON f.id = r.film_id " +
-                            "LEFT JOIN films_genres AS fg ON f.id = fg.film_id WHERE fg.genre_id = ?" +
-                            "ORDER BY r.rate DESC " +
-                            "LIMIT ?;";
-            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), genreId, count);
-        } else if (genreId == null && year != null) {
-            String sqlQuery =
-                    "SELECT f.id, " +
-                            "f.name, " +
-                            "f.description, " +
-                            "f.release_date, " +
-                            "f.duration, " +
-                            "f.mpa_id, " +
-                            "m.name AS mpa_name " +
-                            "FROM films AS f " +
-                            "JOIN MPA_ratings AS m" +
-                            "    ON m.id = f.mpa_id " +
-                            "LEFT JOIN (SELECT film_id, " +
-                            "      COUNT(user_id) rate " +
-                            "      FROM likes_list " +
-                            "      GROUP BY film_id " +
-                            ") r ON f.id = r.film_id " +
-                            "WHERE extract(YEAR FROM cast(f.release_date AS DATE)) = ? " +
-                            "ORDER BY r.rate DESC " +
-                            "LIMIT ?;";
-            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), year, count);
-        } else {
-            String sqlQuery =
-                    "SELECT f.id, " +
-                            "f.name, " +
-                            "f.description, " +
-                            "f.release_date, " +
-                            "f.duration, " +
-                            "f.mpa_id, " +
-                            "m.name AS mpa_name " +
-                            "FROM films AS f " +
-                            "JOIN MPA_ratings AS m" +
-                            "    ON m.id = f.mpa_id " +
-                            "LEFT JOIN (SELECT film_id, " +
-                            "      COUNT(user_id) rate " +
-                            "      FROM likes_list " +
-                            "      GROUP BY film_id " +
-                            ") r ON f.id = r.film_id " +
-                            "LEFT JOIN films_genres AS fg ON f.id = fg.film_id WHERE fg.genre_id = ?" +
-                            "AND extract(YEAR FROM cast(f.release_date AS DATE)) = ? " +
-                            "ORDER BY r.rate DESC " +
-                            "LIMIT ?;";
-            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), genreId, year, count);
-        }
-    }
+//    @Override
+//    public List<Film> getTop(Integer count, Integer genreId, Integer year) {
+//        if (genreId == null && year == null) {
+//            String sqlQuery =
+//                    "SELECT f.id, " +
+//                            "f.name, " +
+//                            "f.description, " +
+//                            "f.release_date, " +
+//                            "f.duration, " +
+//                            "f.mpa_id, " +
+//                            "m.name AS mpa_name " +
+//                            "FROM films AS f " +
+//                            "JOIN MPA_ratings AS m" +
+//                            "    ON m.id = f.mpa_id " +
+//                            "LEFT JOIN (SELECT film_id, " +
+//                            "      COUNT(user_id) rate " +
+//                            "      FROM likes_list " +
+//                            "      GROUP BY film_id " +
+//                            ") r ON f.id = r.film_id " +
+//                            "ORDER BY r.rate DESC " +
+//                            "LIMIT ?;";
+//            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
+//        } else if (genreId != null && year == null) {
+//            String sqlQuery =
+//                    "SELECT f.id, " +
+//                            "f.name, " +
+//                            "f.description, " +
+//                            "f.release_date, " +
+//                            "f.duration, " +
+//                            "f.mpa_id, " +
+//                            "m.name AS mpa_name " +
+//                            "FROM films AS f " +
+//                            "JOIN MPA_ratings AS m" +
+//                            "    ON m.id = f.mpa_id " +
+//                            "LEFT JOIN (SELECT film_id, " +
+//                            "      COUNT(user_id) rate " +
+//                            "      FROM likes_list " +
+//                            "      GROUP BY film_id " +
+//                            ") r ON f.id = r.film_id " +
+//                            "LEFT JOIN films_genres AS fg ON f.id = fg.film_id WHERE fg.genre_id = ?" +
+//                            "ORDER BY r.rate DESC " +
+//                            "LIMIT ?;";
+//            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), genreId, count);
+//        } else if (genreId == null && year != null) {
+//            String sqlQuery =
+//                    "SELECT f.id, " +
+//                            "f.name, " +
+//                            "f.description, " +
+//                            "f.release_date, " +
+//                            "f.duration, " +
+//                            "f.mpa_id, " +
+//                            "m.name AS mpa_name " +
+//                            "FROM films AS f " +
+//                            "JOIN MPA_ratings AS m" +
+//                            "    ON m.id = f.mpa_id " +
+//                            "LEFT JOIN (SELECT film_id, " +
+//                            "      COUNT(user_id) rate " +
+//                            "      FROM likes_list " +
+//                            "      GROUP BY film_id " +
+//                            ") r ON f.id = r.film_id " +
+//                            "WHERE extract(YEAR FROM cast(f.release_date AS DATE)) = ? " +
+//                            "ORDER BY r.rate DESC " +
+//                            "LIMIT ?;";
+//            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), year, count);
+//        } else {
+//            String sqlQuery =
+//                    "SELECT f.id, " +
+//                            "f.name, " +
+//                            "f.description, " +
+//                            "f.release_date, " +
+//                            "f.duration, " +
+//                            "f.mpa_id, " +
+//                            "m.name AS mpa_name " +
+//                            "FROM films AS f " +
+//                            "JOIN MPA_ratings AS m" +
+//                            "    ON m.id = f.mpa_id " +
+//                            "LEFT JOIN (SELECT film_id, " +
+//                            "      COUNT(user_id) rate " +
+//                            "      FROM likes_list " +
+//                            "      GROUP BY film_id " +
+//                            ") r ON f.id = r.film_id " +
+//                            "LEFT JOIN films_genres AS fg ON f.id = fg.film_id WHERE fg.genre_id = ?" +
+//                            "AND extract(YEAR FROM cast(f.release_date AS DATE)) = ? " +
+//                            "ORDER BY r.rate DESC " +
+//                            "LIMIT ?;";
+//            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), genreId, year, count);
+//        }
+//    }
 
     private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {
         Long id = rs.getLong("id");
