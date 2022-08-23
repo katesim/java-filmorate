@@ -7,6 +7,7 @@ import ru.com.practicum.filmorate.model.Review;
 import ru.com.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -15,9 +16,9 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/reviews")
-    public List<Review> getAllByFilmId(@RequestParam(required = false) Long filmId,
-                                       @RequestParam(required = false) Long count) {
-        return reviewService.getAllByFilmId(filmId, count);
+    public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
+                                        @RequestParam(defaultValue = "10", required = false) @Positive int count) {
+        return reviewService.getFilmsReviews(filmId, count);
     }
 
     @GetMapping("/reviews/{id}")

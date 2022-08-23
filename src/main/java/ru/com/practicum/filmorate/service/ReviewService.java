@@ -4,42 +4,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Review;
-import ru.com.practicum.filmorate.storage.Review.ReviewStorage;
+import ru.com.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-    private final static int TOP = 10;
     private final ReviewStorage reviewStorage;
     private final FilmService filmService;
     private final UserService userService;
 
-    /* получаем список отзывов по условиям:
-    * - если не указан фильм, то все отзывы
-    * - если не указано количество, то 10 отзывов
-    * - и по условию фильм и количество */
-    public List<Review> getAllByFilmId(Long filmId, Long count) {
-        List<Review> allReviews = reviewStorage.getAll().stream()
-                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
-                .collect(Collectors.toList());
+    public List<Review> getFilmsReviews(Long filmId, int count) {
 
-        if (filmId == null || filmId < 1) {
-            return allReviews;
-        } else if (count == null || count < 1) {
-            return allReviews.stream()
-                    .filter(review -> Objects.equals(review.getFilmId(), filmId))
-                    .limit(TOP)
-                    .collect(Collectors.toList());
+        if (filmId == null) {
+            return getAll();
         } else {
-            return allReviews.stream()
-                    .filter(review -> Objects.equals(review.getFilmId(), filmId))
-                    .limit(count)
-                    .collect(Collectors.toList());
+            return getByFilmId(filmId, count);
         }
     }
 
@@ -84,5 +67,18 @@ public class ReviewService {
         getById(reviewId); // проверяем существование отзыва
         userService.getById(userId); // проверяем существование пользователя
         reviewStorage.removeDislike(reviewId, userId);
+    }
+
+    private List<Review> getAll() { // получаем все отзывы на все фильмы
+        return reviewStorage.getAll().stream()
+                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private List<Review> getByFilmId(long filmId, int limit) { // получаем отзывы к нужному фильму
+        return reviewStorage.getByFilmId(filmId).stream()
+                .sorted(Comparator.comparingLong(Review::getUseful).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 }

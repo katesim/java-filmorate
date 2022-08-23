@@ -1,4 +1,4 @@
-package ru.com.practicum.filmorate.storage.Review;
+package ru.com.practicum.filmorate.storage.review;
 
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Review;
@@ -23,4 +23,6 @@ public interface ReviewStorage {
     void addDislike(long reviewId, long userId);
 
     void removeDislike(long reviewId, long userId);
+
+    List<Review> getByFilmId(long filmId);
 }
