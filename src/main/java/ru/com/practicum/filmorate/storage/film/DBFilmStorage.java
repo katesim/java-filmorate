@@ -152,12 +152,12 @@ public class DBFilmStorage implements FilmStorage {
 
     public List<Film> getCommonFilms(long userId, long friendId) {
         String sqlQuary = "select film_id " +
-                "from likes_list " +
-                "where user_id = ? " +
-                "intersect select film_id " +
-                "from likes_list " +
-                "where user_id = ?" +
-                "group by user_id";
+                "FROM likes_list " +
+                "WHERE user_id = ? " +
+                "INTERSECT SELECT film_id " +
+                "FROM likes_list " +
+                "WHERE user_id = ?" +
+                "GROUP BY user_id";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
         List<Film> commonFilms = new ArrayList<>();
         while (rowSet.next()) {
