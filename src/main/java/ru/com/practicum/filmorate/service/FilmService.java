@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
@@ -23,6 +24,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
     private final JdbcTemplate jdbcTemplate;
+    DBFilmStorage dbFilmStorage;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -66,7 +68,7 @@ public class FilmService {
 
     public List<Film> getTop(Integer count, Long genreId, Integer year) {
         return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
-                .sorted((f1, f2) -> (getFilmLikeId(f2.getId()) - getFilmLikeId(f1.getId())))
+                .sorted((f1, f2) -> (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -76,17 +78,7 @@ public class FilmService {
                 : filmStream.filter(film -> film.getGenres().stream().anyMatch(g -> genreId.equals(g.getId())));
     }
 
-    private int getFilmLikeId(long film){
-        String sqlQuery = "select user_id from likes_list where film_id = ?";
-        return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
-    }
-
     private Stream<Film> getFilterFilmsByYear(Stream<Film> filmStream, Integer year){
         return year == null ? filmStream : filmStream.filter(film -> year.equals(LocalDate.parse(film.getReleaseDate()).getYear()));
-    }
-
-    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
-        String user_id = "user_id";
-        return rs.getLong(user_id);
     }
 }

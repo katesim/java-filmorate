@@ -54,10 +54,10 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
-                        "    ON m.id = f.mpa_id " +
-                        "WHERE f.id = ?;";
+                "FROM films AS f " +
+                "JOIN MPA_ratings AS m" +
+                "    ON m.id = f.mpa_id " +
+                "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), id)
                 .stream()
                 .findAny()
@@ -137,5 +137,15 @@ public class DBFilmStorage implements FilmStorage {
                 rs.getString("mpa_name")
         );
         return new Film(id, name, description, releaseDate, duration, genres, mpa);
+    }
+
+    public int getFilmLikeId(long film){
+        String sqlQuery = "select user_id from likes_list where film_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
+    }
+
+    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
+        String user_id = "user_id";
+        return rs.getLong(user_id);
     }
 }
