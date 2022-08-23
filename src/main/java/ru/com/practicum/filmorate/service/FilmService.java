@@ -10,8 +10,6 @@ import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,8 +21,7 @@ import java.util.stream.Stream;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
-    private final JdbcTemplate jdbcTemplate;
-    DBFilmStorage dbFilmStorage;
+    private final DBFilmStorage dbFilmStorage;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
