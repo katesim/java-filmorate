@@ -17,15 +17,6 @@ public class ReviewService {
     private final FilmService filmService;
     private final UserService userService;
 
-    public List<Review> getFilmsReviews(Long filmId, int count) {
-
-        if (filmId == null) {
-            return getAll();
-        } else {
-            return getByFilmId(filmId, count);
-        }
-    }
-
     public Review getById(long id) throws NotFoundException {
         return reviewStorage.getById(id);
     }
@@ -69,13 +60,13 @@ public class ReviewService {
         reviewStorage.removeDislike(reviewId, userId);
     }
 
-    private List<Review> getAll() { // получаем все отзывы на все фильмы
+    public List<Review> getAll() { // получаем все отзывы на все фильмы
         return reviewStorage.getAll().stream()
                 .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                 .collect(Collectors.toList());
     }
 
-    private List<Review> getByFilmId(long filmId, int limit) { // получаем отзывы к нужному фильму
+    public List<Review> getByFilmId(long filmId, int limit) { // получаем отзывы к нужному фильму
         return reviewStorage.getByFilmId(filmId).stream()
                 .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                 .limit(limit)
