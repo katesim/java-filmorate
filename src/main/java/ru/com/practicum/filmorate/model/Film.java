@@ -16,4 +16,5 @@ public class Film {
     private int duration;
     private List<Genre> genres;
     private MPA mpa;
+    private List<Director> directors;
 }

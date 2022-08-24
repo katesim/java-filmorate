@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
+import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
@@ -22,6 +23,7 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
     private final DBFilmStorage dbFilmStorage;
+    private final DirectorService directorService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -37,14 +39,19 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(receivedFilm.getId(), film.getDirectors());
+        }
         return receivedFilm;
     }
 
-    public Film update(Film film) {
+    public Film update(Film film) throws NotFoundException {
         FilmValidator.validate(film);
+        filmStorage.getById(film.getId());
         if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
+        directorService.updateForFilm(film.getId(), film.getDirectors());
         return filmStorage.update(film);
     }
 
@@ -70,12 +77,28 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    private Stream<Film> getFilterFilmsByGenreId(Stream<Film> filmStream, Long genreId){
+    private Stream<Film> getFilterFilmsByGenreId(Stream<Film> filmStream, Long genreId) {
         return genreId == null ? filmStream
                 : filmStream.filter(film -> film.getGenres().stream().anyMatch(g -> genreId.equals(g.getId())));
     }
 
-    private Stream<Film> getFilterFilmsByYear(Stream<Film> filmStream, Integer year){
-        return year == null ? filmStream : filmStream.filter(film -> year.equals(LocalDate.parse(film.getReleaseDate()).getYear()));
+    private Stream<Film> getFilterFilmsByYear(Stream<Film> filmStream, Integer year) {
+        return year == null ? filmStream : filmStream
+                .filter(film -> year.equals(LocalDate.parse(film.getReleaseDate()).getYear()));
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) throws NotFoundException {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public void deleteFilm(Long filmId) {
+        filmStorage.getById(filmId);
+        filmStorage.delete(filmId);
+        log.info("Фильм c id {} удален", filmId);
+    }
+
+    public List<Film> getFilmsByDirectorId(Long directorId, SortingTypes sortBy) throws NotFoundException {
+        directorService.getById(directorId);
+        return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 }
