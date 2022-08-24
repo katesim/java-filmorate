@@ -151,7 +151,7 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-        String sqlQuary = "select film_id " +
+        String sqlQuary = "SELECT film_id " +
                 "FROM likes_list " +
                 "WHERE user_id = ? " +
                 "INTERSECT SELECT film_id " +
