@@ -140,7 +140,7 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     public int getFilmLikeId(long film){
-        String sqlQuery = "select user_id from likes_list where film_id = ?";
+        String sqlQuery = "SELECT user_id FROM likes_list WHERE film_id = ?";
         return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
     }
 

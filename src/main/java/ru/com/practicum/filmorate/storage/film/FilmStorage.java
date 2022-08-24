@@ -22,5 +22,4 @@ public interface FilmStorage {
 
     boolean hasLikeFromUser(Long id, Long userId);
 
-   // List<Film> getTop(Integer count, Integer genreId, Integer year);
 }
