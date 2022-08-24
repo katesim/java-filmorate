@@ -39,9 +39,9 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id;";
+                        "FROM films AS f " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService));
     }
 
@@ -55,10 +55,10 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id " +
-                "WHERE f.id = ?;";
+                        "FROM films AS f " +
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id)
                 .stream()
                 .findAny()
@@ -137,15 +137,15 @@ public class DBFilmStorage implements FilmStorage {
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
                         "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id " +
-                "LEFT JOIN (SELECT film_id, " +
-                "      COUNT(user_id) rate " +
-                "      FROM likes_list " +
-                "      GROUP BY film_id " +
-                ") r ON f.id = r.film_id " +
-                "ORDER BY r.rate DESC " +
-                "LIMIT ?;";
+                        "JOIN MPA_ratings AS m" +
+                        "    ON m.id = f.mpa_id " +
+                        "LEFT JOIN (SELECT film_id, " +
+                        "      COUNT(user_id) rate " +
+                        "      FROM likes_list " +
+                        "      GROUP BY film_id " +
+                        ") r ON f.id = r.film_id " +
+                        "ORDER BY r.rate DESC " +
+                        "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), count);
     }
 
@@ -162,13 +162,13 @@ public class DBFilmStorage implements FilmStorage {
                                 "f.duration, " +
                                 "f.mpa_id, " +
                                 "m.name AS mpa_name " +
-                        "FROM films_directors AS fd " +
-                        "JOIN MPA_ratings AS m" +
-                        "    ON m.id = f.mpa_id " +
-                        "JOIN films AS f" +
-                        "    ON f.id = fd.film_id " +
-                        "WHERE fd.director_id = ?" +
-                        "ORDER BY f.release_date;";
+                                "FROM films_directors AS fd " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "JOIN films AS f" +
+                                "    ON f.id = fd.film_id " +
+                                "WHERE fd.director_id = ?" +
+                                "ORDER BY f.release_date;";
                 break;
 
             case likes:
@@ -180,23 +180,90 @@ public class DBFilmStorage implements FilmStorage {
                                 "f.duration, " +
                                 "f.mpa_id, " +
                                 "m.name AS mpa_name " +
-                        "FROM films_directors AS fd " +
-                        "JOIN MPA_ratings AS m" +
-                        "    ON m.id = f.mpa_id " +
-                        "JOIN films AS f" +
-                        "    ON f.id = fd.film_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rate " +
-                        "      FROM likes_list " +
-                        "      GROUP BY film_id " +
-                        ") r ON fd.id = r.film_id " +
-                        "WHERE fd.director_id = ?" +
-                        "ORDER BY r.rate DESC ";
+                                "FROM films_directors AS fd " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "JOIN films AS f" +
+                                "    ON f.id = fd.film_id " +
+                                "LEFT JOIN (SELECT film_id, " +
+                                "      COUNT(user_id) rate " +
+                                "      FROM likes_list " +
+                                "      GROUP BY film_id " +
+                                ") r ON fd.id = r.film_id " +
+                                "WHERE fd.director_id = ?" +
+                                "ORDER BY r.rate DESC ";
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + sortBy);
         }
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
+    }
+
+    @Override
+    public List<Film> searchFilm(String query, String by) {
+        String sqlQuery;
+        String readyQuery = "%" + query + "%";
+        switch (by) {
+            case "title":
+                sqlQuery =
+                        "SELECT f.id," +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                                "FROM films AS f " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "WHERE LOWER(f.name) LIKE LOWER('%s');";
+                break;
+            case "director":
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                                "FROM directors AS d " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "JOIN films_directors AS fd " +
+                                "ON f.id = fd.film_id " +
+                                "JOIN films AS f" +
+                                "    ON f.id = fd.film_id " +
+                                "WHERE LOWER(d.name) LIKE LOWER('%s');";
+                break;
+            case "title,director":
+            case "director,title":
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                                "FROM films AS f " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "LEFT JOIN films_directors AS fd " +
+                                "ON f.id = fd.film_id " +
+                                "LEFT JOIN directors AS d " +
+                                "    ON fd.director_id = d.id " +
+                                "LEFT JOIN likes_list AS l " +
+                                "ON f.id = l.film_id " +
+                                "WHERE (LOWER(d.name) LIKE LOWER('%1$s')) " +
+                                "OR (LOWER(f.name) LIKE LOWER('%1$s')) GROUP BY f.id " +
+                                "ORDER BY COUNT(l.user_id) DESC;";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
+        }
+        return jdbcTemplate.query(String.format(sqlQuery, readyQuery), (rs, rowNum) ->
+                makeFilm(rs, genreService, directorService));
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
