@@ -3,6 +3,7 @@ package ru.com.practicum.filmorate.storage.film;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.*;
@@ -13,6 +14,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -198,6 +200,22 @@ public class DBFilmStorage implements FilmStorage {
         }
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
     }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+            String sqlQuary = "SELECT film_id " +
+                    "FROM likes_list " +
+                    "WHERE user_id = ? " +
+                    "INTERSECT SELECT film_id " +
+                    "FROM likes_list " +
+                    "WHERE user_id = ?" +
+                    "GROUP BY user_id";
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
+            List<Film> commonFilms = new ArrayList<>();
+            while (rowSet.next()) {
+                commonFilms.add(getById(rowSet.getLong("film_id")));
+            }
+            return commonFilms;
+        }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
