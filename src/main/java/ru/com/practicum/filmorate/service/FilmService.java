@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
@@ -17,6 +18,7 @@ public class FilmService {
     private final static int TOP = 10;
     private final FilmStorage filmStorage;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -29,17 +31,22 @@ public class FilmService {
     public Film add(Film film) {
         FilmValidator.validate(film);
         Film receivedFilm = filmStorage.add(film);
-        if (film.getGenres() != null){
+        if (film.getGenres() != null) {
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
+        }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(receivedFilm.getId(), film.getDirectors());
         }
         return receivedFilm;
     }
 
-    public Film update(Film film) {
+    public Film update(Film film) throws NotFoundException {
         FilmValidator.validate(film);
-        if (film.getGenres() != null){
+        filmStorage.getById(film.getId());
+        if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
+        directorService.updateForFilm(film.getId(), film.getDirectors());
         return filmStorage.update(film);
     }
 
@@ -51,7 +58,7 @@ public class FilmService {
 
     public void removeLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
-        if (! filmStorage.hasLikeFromUser(id, userId)){
+        if (!filmStorage.hasLikeFromUser(id, userId)) {
             throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
         }
         filmStorage.removeLike(id, userId);
@@ -69,4 +76,14 @@ public class FilmService {
        return filmStorage.getCommonFilms(userId, friendId);
     }
 
+    public void deleteFilm(Long filmId) {
+        filmStorage.getById(filmId);
+        filmStorage.delete(filmId);
+        log.info("Фильм c id {} удален", filmId);
+    }
+
+    public List<Film> getFilmsByDirectorId(Long directorId, SortingTypes sortBy) throws NotFoundException{
+        directorService.getById(directorId);
+        return filmStorage.getFilmsByDirectorId(directorId, sortBy);
+    }
 }
