@@ -1,6 +1,7 @@
 package ru.com.practicum.filmorate.storage.user;
 
 import ru.com.practicum.filmorate.exception.NotFoundException;
+import ru.com.practicum.filmorate.model.Like;
 import ru.com.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -21,4 +22,8 @@ public interface UserStorage {
     void removeFriends(Long userId, Long friendId);
 
     List<Long> getUserFriendsById(Long userId);
+
+    List<Like> getAllLikes();
+
+    List<Long> getUsersIds();
 }
