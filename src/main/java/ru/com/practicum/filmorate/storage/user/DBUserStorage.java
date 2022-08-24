@@ -5,6 +5,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
+import ru.com.practicum.filmorate.model.Like;
 import ru.com.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -109,6 +110,25 @@ public class DBUserStorage implements UserStorage {
                         "FROM friendships AS fr " +
                         "WHERE fr.user_id = ?;";
         return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
+    }
+
+    @Override
+    public List<Like> getAllLikes() { // получаем список всех лайков для дальнейшей работы
+        String sqlQuery = "SELECT * FROM likes_list;";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeLike(rs));
+    }
+
+    @Override
+    public List<Long> getUsersIds() {
+        String sqlQuery = "SELECT id FROM users;";
+        return jdbcTemplate.queryForList(sqlQuery, Long.class);
+    }
+
+    private Like makeLike(ResultSet rs) throws SQLException {
+        return new Like(
+                rs.getLong("user_id"),
+                rs.getLong("film_id")
+        );
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
