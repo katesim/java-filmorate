@@ -103,5 +103,18 @@ public class FilmService {
 
     public List<Film> getRecommendations(Long userId) {
         return filmStorage.getRecommendations(userId);
+
+    public List<Film> searchFilms(String query, String by) {
+        switch (by) {
+            case "director":
+                return filmStorage.searchFilms(query, "");
+            case "title":
+                return filmStorage.searchFilms("", query);
+            case "director,title":
+            case "title,director":
+                return filmStorage.searchFilms(query, query);
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
+        }
     }
 }

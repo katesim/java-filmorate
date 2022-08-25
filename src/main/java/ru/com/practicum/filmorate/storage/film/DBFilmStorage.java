@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Repository("filmStorage")
@@ -142,7 +143,6 @@ public class DBFilmStorage implements FilmStorage {
                            "WHERE fd.director_id = ?" +
                            "ORDER BY f.release_date;";
                 break;
-
             case likes:
                 sqlQuery = "SELECT f.id, " +
                                   "f.name, " +
@@ -207,6 +207,7 @@ public class DBFilmStorage implements FilmStorage {
                 userId, similarUserId);
     }
 
+    @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
             String sqlQuery = "SELECT film_id " +
                               "FROM likes_list " +
@@ -221,7 +222,41 @@ public class DBFilmStorage implements FilmStorage {
                 commonFilms.add(getById(rowSet.getLong("film_id")));
             }
             return commonFilms;
+
+    @Override
+    public List<Film> searchFilms(String directorSubstring, String titleSubstring) {
+        String director = "";
+        String title = "";
+        if (directorSubstring.length() != 0) {
+            director = "%" + directorSubstring.toLowerCase(Locale.ROOT) + "%";
         }
+        if (titleSubstring.length() != 0) {
+            title = "%" + titleSubstring.toLowerCase(Locale.ROOT) + "%";
+        }
+        String sqlQuery =
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                    "FROM films AS f " +
+                    "JOIN MPA_ratings AS m " +
+                        "ON m.id = f.mpa_id " +
+                    "LEFT JOIN films_directors AS fd " +
+                        "ON f.id = fd.film_id " +
+                    "LEFT JOIN directors AS d " +
+                        "ON fd.director_id = d.id " +
+                    "LEFT JOIN likes_list AS l " +
+                        "ON f.id = l.film_id " +
+                    "WHERE (LOWER(d.name) LIKE ?) " +
+                        "OR (LOWER(f.name) LIKE ?) " +
+                    "GROUP BY f.id " +
+                    "ORDER BY COUNT(l.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
+    }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
@@ -238,12 +273,12 @@ public class DBFilmStorage implements FilmStorage {
         return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
     }
 
-    public int getFilmLikeId(long film){
+    public int getFilmLikeId(long film) {
         String sqlQuery = "SELECT user_id FROM likes_list WHERE film_id = ?";
         return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
     }
 
-    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
+    private long createLikeId(ResultSet rs, int rowNum) throws SQLException {
         String user_id = "user_id";
         return rs.getLong(user_id);
     }

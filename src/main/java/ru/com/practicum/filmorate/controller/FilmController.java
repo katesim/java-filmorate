@@ -72,4 +72,9 @@ public class FilmController {
                                            @RequestParam SortingTypes sortBy) throws NotFoundException {
         return filmService.getFilmsByDirectorId(directorId, sortBy);
     }
+
+    @GetMapping(value = "/films/search")
+    public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
+       return filmService.searchFilms(query, by);
+    }
 }
