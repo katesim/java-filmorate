@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
+import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.service.UserService;
 
@@ -64,4 +65,8 @@ public class UserController {
         userService.deleteUser(userId);
     }
 
+    @GetMapping(value = "/users/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        return userService.getRecommendations(id);
+    }
 }

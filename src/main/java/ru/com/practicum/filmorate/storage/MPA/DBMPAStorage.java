@@ -20,20 +20,18 @@ public class DBMPAStorage implements MPAStorage {
 
     @Override
     public List<MPA> getAll() {
-        String sqlQuery =
-                "SELECT m.id, " +
-                        "m.name " +
-                        "FROM MPA_ratings AS m;";
+        String sqlQuery = "SELECT m.id, " +
+                                 "m.name " +
+                          "FROM MPA_ratings AS m;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeMPA(rs));
     }
 
     @Override
     public MPA getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT m.id, " +
-                        "m.name " +
-                        "FROM MPA_ratings AS m " +
-                        "WHERE m.id = ?;";
+        String sqlQuery = "SELECT m.id, " +
+                                 "m.name " +
+                          "FROM MPA_ratings AS m " +
+                          "WHERE m.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeMPA(rs), id)
                 .stream()
                 .findAny()
