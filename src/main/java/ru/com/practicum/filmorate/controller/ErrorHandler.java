@@ -51,5 +51,4 @@ public class ErrorHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
-
 }

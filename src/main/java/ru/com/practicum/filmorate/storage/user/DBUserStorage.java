@@ -5,7 +5,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Like;
 import ru.com.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -25,26 +24,24 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public List<User> getAll() {
-        String sqlQuery =
-                "SELECT u.id, " +
-                        "u.email, " +
-                        "u.login, " +
-                        "u.name, " +
-                        "u.birthday, " +
-                "FROM users AS u;";
+        String sqlQuery = "SELECT u.id, " +
+                                 "u.email, " +
+                                 "u.login, " +
+                                 "u.name, " +
+                                 "u.birthday, " +
+                          "FROM users AS u;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
     public User getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT u.id, " +
-                        "u.email, " +
-                        "u.login, " +
-                        "u.name, " +
-                        "u.birthday, " +
-                "FROM users AS u " +
-                "WHERE u.id = ?;";
+        String sqlQuery = "SELECT u.id, " +
+                                 "u.email, " +
+                                 "u.login, " +
+                                 "u.name, " +
+                                 "u.birthday, " +
+                          "FROM users AS u " +
+                          "WHERE u.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs), id)
                 .stream()
                 .findAny()
@@ -54,7 +51,7 @@ public class DBUserStorage implements UserStorage {
     @Override
     public User add(User user) {
         String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
-                "VALUES (?, ?, ?, ?);";
+                          "VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});
@@ -72,8 +69,8 @@ public class DBUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         String sqlQuery = "UPDATE users " +
-                "SET email = ?, login = ?, name = ?, birthday = ? " +
-                "WHERE id = ?;";
+                          "SET email = ?, login = ?, name = ?, birthday = ? " +
+                          "WHERE id = ?;";
         jdbcTemplate.update(
                 sqlQuery,
                 user.getEmail(),
@@ -105,30 +102,10 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public List<Long> getUserFriendsById(Long userId) throws NotFoundException {
-        String sqlQuery =
-                "SELECT fr.friend_id, " +
-                        "FROM friendships AS fr " +
-                        "WHERE fr.user_id = ?;";
+        String sqlQuery = "SELECT fr.friend_id, " +
+                          "FROM friendships AS fr " +
+                          "WHERE fr.user_id = ?;";
         return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
-    }
-
-    @Override
-    public List<Like> getAllLikes() { // получаем список всех лайков для дальнейшей работы
-        String sqlQuery = "SELECT * FROM likes_list;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeLike(rs));
-    }
-
-    @Override
-    public List<Long> getUsersIds() {
-        String sqlQuery = "SELECT id FROM users;";
-        return jdbcTemplate.queryForList(sqlQuery, Long.class);
-    }
-
-    private Like makeLike(ResultSet rs) throws SQLException {
-        return new Like(
-                rs.getLong("user_id"),
-                rs.getLong("film_id")
-        );
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
