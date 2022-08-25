@@ -103,6 +103,7 @@ public class FilmService {
 
     public List<Film> getRecommendations(Long userId) {
         return filmStorage.getRecommendations(userId);
+    }
 
     public List<Film> searchFilms(String query, String by) {
         switch (by) {

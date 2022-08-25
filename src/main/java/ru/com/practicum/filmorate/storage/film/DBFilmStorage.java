@@ -209,20 +209,21 @@ public class DBFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
-            String sqlQuery = "SELECT film_id " +
-                              "FROM likes_list " +
-                              "WHERE user_id = ? " +
-                              "INTERSECT SELECT film_id " +
-                              "FROM likes_list " +
-                              "WHERE user_id = ?" +
-                              "GROUP BY user_id";
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
-            List<Film> commonFilms = new ArrayList<>();
-            while (rowSet.next()) {
-                commonFilms.add(getById(rowSet.getLong("film_id")));
-            }
-            return commonFilms;
-
+        String sqlQuery = "SELECT film_id " +
+                "FROM likes_list " +
+                "WHERE user_id = ? " +
+                "INTERSECT SELECT film_id " +
+                "FROM likes_list " +
+                "WHERE user_id = ?" +
+                "GROUP BY user_id";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
+        List<Film> commonFilms = new ArrayList<>();
+        while (rowSet.next()) {
+            commonFilms.add(getById(rowSet.getLong("film_id")));
+        }
+        return commonFilms;
+    }
+    
     @Override
     public List<Film> searchFilms(String directorSubstring, String titleSubstring) {
         String director = "";
