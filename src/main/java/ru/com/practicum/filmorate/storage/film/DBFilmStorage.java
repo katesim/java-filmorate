@@ -22,7 +22,6 @@ import java.util.Objects;
 @Repository("filmStorage")
 public class DBFilmStorage implements FilmStorage {
 
-    private static final String SEARCH_PATTERN = "%%s%";
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
     private final DirectorService directorService;
