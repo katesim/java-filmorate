@@ -117,7 +117,6 @@ public class DBUserStorage implements UserStorage {
         String login = rs.getString("login");
         String name = rs.getString("name");
         String birthday = rs.getDate("birthday").toString();
-        
         return new User(id, email, login, name, birthday);
     }
 }
