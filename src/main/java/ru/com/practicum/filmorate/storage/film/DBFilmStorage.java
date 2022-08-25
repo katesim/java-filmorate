@@ -179,87 +179,72 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilm(String query, String by) {
-        String sqlQuery;
+    public List<Film> searchFilmByTitle(String query) {
         String readyQuery = "%" + query + "%";
-        switch (by) {
-            case "title":
-                sqlQuery =
-                        "SELECT f.id," +
-                                "f.name, " +
-                                "f.description, " +
-                                "f.release_date, " +
-                                "f.duration, " +
-                                "f.mpa_id, " +
-                                "m.name AS mpa_name " +
-                                "FROM films AS f " +
-                                "JOIN MPA_ratings AS m" +
-                                "    ON m.id = f.mpa_id " +
-                                "WHERE LOWER(f.name) LIKE LOWER('%s');";
-                break;
-            case "director":
-                sqlQuery =
-                        "SELECT f.id, " +
-                                "f.name, " +
-                                "f.description, " +
-                                "f.release_date, " +
-                                "f.duration, " +
-                                "f.mpa_id, " +
-                                "m.name AS mpa_name " +
-                                "FROM directors AS d " +
-                                "JOIN MPA_ratings AS m" +
-                                "    ON m.id = f.mpa_id " +
-                                "JOIN films_directors AS fd " +
-                                "ON f.id = fd.film_id " +
-                                "JOIN films AS f" +
-                                "    ON f.id = fd.film_id " +
-                                "WHERE LOWER(d.name) LIKE LOWER('%s');";
-                break;
-            case "title,director":
-            case "director,title":
-                sqlQuery =
-                        "SELECT f.id, " +
-                                "f.name, " +
-                                "f.description, " +
-                                "f.release_date, " +
-                                "f.duration, " +
-                                "f.mpa_id, " +
-                                "m.name AS mpa_name " +
-                                "FROM films AS f " +
-                                "JOIN MPA_ratings AS m" +
-                                "    ON m.id = f.mpa_id " +
-                                "LEFT JOIN films_directors AS fd " +
-                                "ON f.id = fd.film_id " +
-                                "LEFT JOIN directors AS d " +
-                                "    ON fd.director_id = d.id " +
-                                "LEFT JOIN likes_list AS l " +
-                                "ON f.id = l.film_id " +
-                                "WHERE (LOWER(d.name) LIKE LOWER('%1$s')) " +
-                                "OR (LOWER(f.name) LIKE LOWER('%1$s')) GROUP BY f.id " +
-                                "ORDER BY COUNT(l.user_id) DESC;";
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + by);
-        }
+        String sqlQuery =
+                "SELECT f.id," +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                        "FROM films AS f " +
+                        "JOIN MPA_ratings AS m " +
+                        "ON m.id = f.mpa_id " +
+                        "LEFT JOIN likes_list AS l " +
+                        "ON f.id = l.film_id " +
+                        "WHERE LOWER(f.name) LIKE LOWER('%s') " +
+                        "GROUP BY f.id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
         return jdbcTemplate.query(String.format(sqlQuery, readyQuery), (rs, rowNum) ->
                 makeFilm(rs, genreService, directorService));
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-            String sqlQuary = "SELECT film_id " +
-                    "FROM likes_list " +
-                    "WHERE user_id = ? " +
-                    "INTERSECT SELECT film_id " +
-                    "FROM likes_list " +
-                    "WHERE user_id = ?" +
-                    "GROUP BY user_id";
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
-            List<Film> commonFilms = new ArrayList<>();
-            while (rowSet.next()) {
-                commonFilms.add(getById(rowSet.getLong("film_id")));
-            }
-            return commonFilms;
+        String sqlQuary = "SELECT film_id " +
+                "FROM likes_list " +
+                "WHERE user_id = ? " +
+                "INTERSECT SELECT film_id " +
+                "FROM likes_list " +
+                "WHERE user_id = ?" +
+                "GROUP BY user_id";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
+        List<Film> commonFilms = new ArrayList<>();
+        while (rowSet.next()) {
+            commonFilms.add(getById(rowSet.getLong("film_id")));
         }
+        return commonFilms;
+    }
+
+    @Override
+    public List<Film> searchFilmByDirector(String query, String optionalQuery) {
+        String readyQuery = "%" + query + "%";
+        String readyOptionalQuery = "%" + optionalQuery + "%";
+        String sqlQuery =
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                        "FROM films AS f " +
+                        "JOIN MPA_ratings AS m " +
+                        "ON m.id = f.mpa_id " +
+                        "LEFT JOIN films_directors AS fd " +
+                        "ON f.id = fd.film_id " +
+                        "LEFT JOIN directors AS d " +
+                        "ON fd.director_id = d.id " +
+                        "LEFT JOIN likes_list AS l " +
+                        "ON f.id = l.film_id " +
+                        "WHERE (LOWER(d.name) LIKE LOWER('%s')) " +
+                        "OR (LOWER(f.name) LIKE LOWER('%2s')) " +
+                        "GROUP BY f.id " +
+                        "ORDER BY COUNT(l.user_id) DESC;";
+        return jdbcTemplate.query(String.format(sqlQuery, readyQuery, readyOptionalQuery), (rs, rowNum) ->
+                makeFilm(rs, genreService, directorService));
+    }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
@@ -276,12 +261,12 @@ public class DBFilmStorage implements FilmStorage {
         return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
     }
 
-    public int getFilmLikeId(long film){
+    public int getFilmLikeId(long film) {
         String sqlQuery = "SELECT user_id FROM likes_list WHERE film_id = ?";
         return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
     }
 
-    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
+    private long createLikeId(ResultSet rs, int rowNum) throws SQLException {
         String user_id = "user_id";
         return rs.getLong(user_id);
     }

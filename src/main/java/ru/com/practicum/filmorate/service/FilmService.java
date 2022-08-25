@@ -103,6 +103,16 @@ public class FilmService {
     }
 
     public List<Film> searchFilms(String query, String by) {
-        return filmStorage.searchFilm(query, by);
+        switch (by) {
+            case "director":
+                return filmStorage.searchFilmByDirector(query, "");
+            case "title":
+                return filmStorage.searchFilmByTitle(query);
+            case "director,title":
+            case "title,director":
+                return filmStorage.searchFilmByDirector(query, query);
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
+        }
     }
 }
