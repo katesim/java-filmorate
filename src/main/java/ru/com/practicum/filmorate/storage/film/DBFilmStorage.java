@@ -129,29 +129,6 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTop(Integer count) {
-        String sqlQuery =
-                "SELECT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                "JOIN MPA_ratings AS m" +
-                "    ON m.id = f.mpa_id " +
-                "LEFT JOIN (SELECT film_id, " +
-                "      COUNT(user_id) rate " +
-                "      FROM likes_list " +
-                "      GROUP BY film_id " +
-                ") r ON f.id = r.film_id " +
-                "ORDER BY r.rate DESC " +
-                "LIMIT ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), count);
-    }
-
-    @Override
     public List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy) {
         String sqlQuery;
         switch (sortBy) {
@@ -243,6 +220,21 @@ public class DBFilmStorage implements FilmStorage {
                 userId, similarUserId);
     }
 
+    public List<Film> getCommonFilms(long userId, long friendId) {
+            String sqlQuary = "SELECT film_id " +
+                    "FROM likes_list " +
+                    "WHERE user_id = ? " +
+                    "INTERSECT SELECT film_id " +
+                    "FROM likes_list " +
+                    "WHERE user_id = ?" +
+                    "GROUP BY user_id";
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuary, userId, friendId);
+            List<Film> commonFilms = new ArrayList<>();
+            while (rowSet.next()) {
+                commonFilms.add(getById(rowSet.getLong("film_id")));
+            }
+            return commonFilms;
+        }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
@@ -257,5 +249,15 @@ public class DBFilmStorage implements FilmStorage {
         );
         List<Director> directors = directorService.getByFilmId(id);
         return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
+    }
+
+    public int getFilmLikeId(long film){
+        String sqlQuery = "SELECT user_id FROM likes_list WHERE film_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
+    }
+
+    private long createLikeId(ResultSet rs, int rowNum) throws SQLException{
+        String user_id = "user_id";
+        return rs.getLong(user_id);
     }
 }
