@@ -32,8 +32,10 @@ public class ReviewService {
         return reviewStorage.update(review);
     }
 
-    public void deleteById(long id) {
+    public Review deleteById(long id) {
+        Review review = getById(id);
         reviewStorage.deleteById(id);
+        return review;
     }
 
     public void addLike(long reviewId, long userId) {

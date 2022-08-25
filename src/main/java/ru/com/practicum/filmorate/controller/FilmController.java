@@ -5,10 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.SortingTypes;
+import ru.com.practicum.filmorate.model.*;
+import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.FilmService;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
+    private final FeedService feedService;
 
     @GetMapping("/films")
     public List<Film> findAll() {
@@ -41,11 +43,29 @@ public class FilmController {
     @PutMapping(value = "/films/{id}/like/{userId}")
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.addLike(id, userId);
+        Event event = Event.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .userId(userId)
+                .eventType(EventTypes.LIKE)
+                .operation(OperationTypes.ADD)
+                .entityId(id)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     @DeleteMapping(value = "/films/{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.removeLike(id, userId);
+        Event event = Event.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .userId(userId)
+                .eventType(EventTypes.LIKE)
+                .operation(OperationTypes.REMOVE)
+                .entityId(id)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     @GetMapping(value = "/films/popular")
