@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.Like;
 import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.storage.user.UserStorage;
 import ru.com.practicum.filmorate.validator.UserValidator;
@@ -76,61 +75,6 @@ public class UserService {
 
     public List<Film> getRecommendations(Long userId) {
         userStorage.getById(userId);
-
-        List<Film> recommendations = new ArrayList<>();
-        List<Like> allLikes = userStorage.getAllLikes();
-        List<Long> userLikes = getUserLikes(userId, allLikes);
-        List<Long> otherUserLikes = findMaxSimilarUser(userId, userLikes, allLikes);
-
-        for (Long id : otherUserLikes) {
-            if (!userLikes.contains(id)) {
-                recommendations.add(filmService.getById(id));
-            }
-        }
-
-        return recommendations;
-    }
-
-    private List<Long> findMaxSimilarUser(long userId, List<Long> userLikes, List<Like> allLikes) { // ищем пользователя с максимальным пересечением интересов
-        long maxSimilar = 0;
-        int maxSize = 0;
-        List<Long> usersIds = userStorage.getUsersIds();
-
-        for (Long id : usersIds) {
-            if (userId != id) {
-                int size = compareUsersLikes(userLikes, getUserLikes(id, allLikes));
-
-                if (size > maxSize) {
-                    maxSize = size;
-                    maxSimilar = id;
-                }
-            }
-        }
-
-        return getUserLikes(maxSimilar, allLikes);
-    }
-
-    private int compareUsersLikes(List<Long> userLikes, List<Long> otherUserLikes) { // сравниваем лайки пользователей
-        int size = 0;
-
-        for (Long filmId : userLikes) {
-            if (otherUserLikes.contains(filmId)) {
-                size++;
-            }
-        }
-
-        return size;
-    }
-
-    private List<Long> getUserLikes(long userId, List<Like> allLikes) { // получение списка лайков пользователя
-        List<Long> userLikes = new ArrayList<>();
-
-        for (Like like : allLikes) {
-            if (like.getUserId() == userId) {
-                userLikes.add(like.getFilmId());
-            }
-        }
-
-        return userLikes;
+        return filmService.getRecommendations(userId);
     }
 }

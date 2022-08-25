@@ -26,4 +26,6 @@ public interface FilmStorage {
     List<Film> getTop(Integer count);
 
     List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy);
+
+    List<Film> getRecommendations(Long userId);
 }

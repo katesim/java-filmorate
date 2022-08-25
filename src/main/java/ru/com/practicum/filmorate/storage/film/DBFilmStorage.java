@@ -3,6 +3,7 @@ package ru.com.practicum.filmorate.storage.film;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.*;
@@ -13,6 +14,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -198,6 +200,49 @@ public class DBFilmStorage implements FilmStorage {
         }
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
     }
+
+    @Override
+    public List<Film> getRecommendations(Long userId) {
+        List<Film> recomendations = new ArrayList<>();
+
+        String similarUserQuery =  "SELECT user_id, COUNT(film_id) as c " +
+                "FROM likes_list WHERE film_id IN (" +
+                "SELECT film_id FROM likes_list WHERE user_id = ?) " +
+                "AND user_id != ? " +
+                "GROUP BY user_id " +
+                "ORDER BY c DESC " +
+                "LIMIT 1;";
+
+        String recommendedFilmsQuery =  "" +
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                "FROM likes_list AS l " +
+                "JOIN films AS f " +
+                    "ON f.id = l.film_id " +
+                "JOIN MPA_ratings AS m " +
+                "    ON m.id = f.mpa_id " +
+                "WHERE l.film_id NOT IN (" +
+                    "SELECT film_id FROM likes_list WHERE user_id = ?) " +
+                "AND l.user_id = ? ;";
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(similarUserQuery, userId, userId);
+
+        if (!rowSet.next()) {
+            return recomendations;
+        }
+
+        Long similarUserId = rowSet.getLong("user_id");
+
+        return jdbcTemplate.query(recommendedFilmsQuery,
+                (rs, rowNum) -> makeFilm(rs, genreService, directorService),
+                userId, similarUserId);
+    }
+
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
