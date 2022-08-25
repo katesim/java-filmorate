@@ -1,6 +1,5 @@
 package ru.com.practicum.filmorate.storage.feed;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-@Slf4j
 public class DBFeedStorage implements FeedStorage {
     private final JdbcTemplate jdbcTemplate;
 
