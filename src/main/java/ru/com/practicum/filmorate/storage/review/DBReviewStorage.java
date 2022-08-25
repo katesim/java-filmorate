@@ -40,7 +40,7 @@ public class DBReviewStorage implements ReviewStorage {
     @Override
     public Review add(Review review) {
         String sqlQuery = "INSERT INTO reviews (content, is_positive, user_id, film_id) " +
-                "VALUES (?, ?, ?, ?);";
+                          "VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -76,7 +76,7 @@ public class DBReviewStorage implements ReviewStorage {
     public void deleteById(long id) {
         String sqlQuery = "DELETE FROM reviews WHERE id = ?;";
 
-        Review review = getById(id); // проверяем существование отзыва
+        Review review = getById(id);
         jdbcTemplate.update(sqlQuery, id);
         log.trace("Удален объект: {}.", review);
     }
@@ -84,7 +84,7 @@ public class DBReviewStorage implements ReviewStorage {
     @Override
     public void addLike(long reviewId, long userId) {
         String sqlQuery = "INSERT INTO review_likes (review_id, user_id) VALUES (?, ?);";
-    // проверяем наличие дизлайка от пользователя, если есть, то удаляем
+
         if (getReviewDislikesFromTable(reviewId).contains(userId)) {
             removeDislike(reviewId, userId);
         }
@@ -101,7 +101,7 @@ public class DBReviewStorage implements ReviewStorage {
     @Override
     public void addDislike(long reviewId, long userId) {
         String sqlQuery = "INSERT INTO review_dislikes (review_id, user_id) VALUES (?, ?);";
-        // проверяем наличие лайка от пользователя, если есть, то удаляем
+
         if (getReviewLikesFromTable(reviewId).contains(userId)) {
             removeLike(reviewId, userId);
         }
@@ -135,7 +135,7 @@ public class DBReviewStorage implements ReviewStorage {
         return review;
     }
 
-    private long calculateUseful(Review review) { // счетчик рейтинга полезности
+    private long calculateUseful(Review review) {
         long useful = 0;
         useful += review.getLikes().size();
         useful -= review.getDislikes().size();

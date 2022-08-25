@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
+import ru.com.practicum.filmorate.model.Film;
 import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.storage.user.UserStorage;
 import ru.com.practicum.filmorate.validator.UserValidator;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmService filmService;
 
     public List<User> getAll() {
         return userStorage.getAll();
@@ -69,5 +71,10 @@ public class UserService {
         userStorage.getById(id);
         userStorage.delete(id);
         log.info("Пользователь c id {} удален", id);
+    }
+
+    public List<Film> getRecommendations(Long userId) {
+        userStorage.getById(userId);
+        return filmService.getRecommendations(userId);
     }
 }

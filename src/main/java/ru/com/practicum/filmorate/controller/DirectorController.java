@@ -38,5 +38,4 @@ public class DirectorController {
     public void delete(@PathVariable Long id) {
         directorService.delete(id);
     }
-
 }
