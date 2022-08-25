@@ -16,11 +16,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Repository("filmStorage")
 public class DBFilmStorage implements FilmStorage {
 
+    private static final String SEARCH_PATTERN = "%%s%";
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
     private final DirectorService directorService;
@@ -178,29 +180,6 @@ public class DBFilmStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id);
     }
 
-    @Override
-    public List<Film> searchFilmByTitle(String query) {
-        String readyQuery = "%" + query + "%";
-        String sqlQuery =
-                "SELECT f.id," +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                        "JOIN MPA_ratings AS m " +
-                        "ON m.id = f.mpa_id " +
-                        "LEFT JOIN likes_list AS l " +
-                        "ON f.id = l.film_id " +
-                        "WHERE LOWER(f.name) LIKE LOWER('%s') " +
-                        "GROUP BY f.id " +
-                        "ORDER BY COUNT(l.user_id) DESC;";
-        return jdbcTemplate.query(String.format(sqlQuery, readyQuery), (rs, rowNum) ->
-                makeFilm(rs, genreService, directorService));
-    }
-
     public List<Film> getCommonFilms(long userId, long friendId) {
         String sqlQuary = "SELECT film_id " +
                 "FROM likes_list " +
@@ -218,9 +197,15 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilmByDirector(String query, String optionalQuery) {
-        String readyQuery = "%" + query + "%";
-        String readyOptionalQuery = "%" + optionalQuery + "%";
+    public List<Film> searchFilms(String directorSubstring, String titleSubstring) {
+        String director = "";
+        String title = "";
+        if (directorSubstring.length() != 0) {
+            director = "%" + directorSubstring.toLowerCase(Locale.ROOT) + "%";
+        }
+        if (titleSubstring.length() != 0) {
+            title = "%" + titleSubstring.toLowerCase(Locale.ROOT) + "%";
+        }
         String sqlQuery =
                 "SELECT f.id, " +
                         "f.name, " +
@@ -229,21 +214,21 @@ public class DBFilmStorage implements FilmStorage {
                         "f.duration, " +
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
-                        "FROM films AS f " +
-                        "JOIN MPA_ratings AS m " +
+                    "FROM films AS f " +
+                    "JOIN MPA_ratings AS m " +
                         "ON m.id = f.mpa_id " +
-                        "LEFT JOIN films_directors AS fd " +
+                    "LEFT JOIN films_directors AS fd " +
                         "ON f.id = fd.film_id " +
-                        "LEFT JOIN directors AS d " +
+                    "LEFT JOIN directors AS d " +
                         "ON fd.director_id = d.id " +
-                        "LEFT JOIN likes_list AS l " +
+                    "LEFT JOIN likes_list AS l " +
                         "ON f.id = l.film_id " +
-                        "WHERE (LOWER(d.name) LIKE LOWER('%s')) " +
-                        "OR (LOWER(f.name) LIKE LOWER('%2s')) " +
-                        "GROUP BY f.id " +
-                        "ORDER BY COUNT(l.user_id) DESC;";
-        return jdbcTemplate.query(String.format(sqlQuery, readyQuery, readyOptionalQuery), (rs, rowNum) ->
-                makeFilm(rs, genreService, directorService));
+                    "WHERE (LOWER(d.name) LIKE ?) " +
+                        "OR (LOWER(f.name) LIKE ?) " +
+                    "GROUP BY f.id " +
+                    "ORDER BY COUNT(l.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery,
+                (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {

@@ -23,11 +23,9 @@ public interface FilmStorage {
 
     boolean hasLikeFromUser(Long id, Long userId);
 
-    List<Film> searchFilmByTitle(String query);
-
     List<Film> getCommonFilms(long userId, long friendId);
 
     List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy);
 
-    List<Film> searchFilmByDirector(String query, String optionalQuery);
+    List<Film> searchFilms(String directorSubstring, String titleSubstring);
 }

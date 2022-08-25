@@ -105,12 +105,12 @@ public class FilmService {
     public List<Film> searchFilms(String query, String by) {
         switch (by) {
             case "director":
-                return filmStorage.searchFilmByDirector(query, "");
+                return filmStorage.searchFilms(query, "");
             case "title":
-                return filmStorage.searchFilmByTitle(query);
+                return filmStorage.searchFilms("", query);
             case "director,title":
             case "title,director":
-                return filmStorage.searchFilmByDirector(query, query);
+                return filmStorage.searchFilms(query, query);
             default:
                 throw new IllegalStateException("Unexpected value: " + by);
         }
