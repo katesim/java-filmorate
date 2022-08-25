@@ -9,7 +9,6 @@ import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.FilmService;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -44,7 +43,7 @@ public class FilmController {
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.addLike(id, userId);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(userId)
                 .eventType(EventTypes.LIKE)
                 .operation(OperationTypes.ADD)
@@ -58,7 +57,7 @@ public class FilmController {
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         filmService.removeLike(id, userId);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(userId)
                 .eventType(EventTypes.LIKE)
                 .operation(OperationTypes.REMOVE)

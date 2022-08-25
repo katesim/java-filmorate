@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
-import java.sql.Timestamp;
-
 @Data
 @AllArgsConstructor
 @SuperBuilder
 public class Event {
-    private Timestamp timestamp;
+    private Long timestamp;
     private Long userId;
     private EventTypes eventType;
     private OperationTypes operation;

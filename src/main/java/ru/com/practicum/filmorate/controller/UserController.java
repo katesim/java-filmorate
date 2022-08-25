@@ -12,8 +12,6 @@ import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.UserService;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,7 +46,7 @@ public class UserController {
     public void makeFriends(@PathVariable Long id, @PathVariable Long friendId) throws NotFoundException {
         userService.makeFriends(id, friendId);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(id)
                 .eventType(EventTypes.FRIEND)
                 .operation(OperationTypes.ADD)
@@ -62,7 +60,7 @@ public class UserController {
     public void removeFriends(@PathVariable Long id, @PathVariable Long friendId) {
         userService.removeFriends(id, friendId);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(id)
                 .eventType(EventTypes.FRIEND)
                 .operation(OperationTypes.REMOVE)

@@ -12,7 +12,6 @@ import ru.com.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -39,7 +38,7 @@ public class ReviewController {
     public Review add(@Valid @RequestBody Review review) {
         Review createdReview = reviewService.add(review);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(createdReview.getUserId())
                 .eventType(EventTypes.REVIEW)
                 .operation(OperationTypes.ADD)
@@ -54,7 +53,7 @@ public class ReviewController {
     public Review update(@Valid @RequestBody Review review) {
         Review updatedReview = reviewService.update(review);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(updatedReview.getUserId())
                 .eventType(EventTypes.REVIEW)
                 .operation(OperationTypes.UPDATE)
@@ -69,7 +68,7 @@ public class ReviewController {
     public void deleteById(@PathVariable long id) {
         Review review = reviewService.deleteById(id);
         Event event = Event.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .timestamp(System.currentTimeMillis())
                 .userId(review.getUserId())
                 .eventType(EventTypes.REVIEW)
                 .operation(OperationTypes.REMOVE)
