@@ -107,9 +107,9 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Long id, Long userId) {
-        String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, userId, id);
+    public void addLike(Long id, Long userId, int rating) {
+        String sqlQuery = "INSERT INTO likes_list (user_id, film_id, rating) VALUES (?, ?, ?);";
+        jdbcTemplate.update(sqlQuery, userId, id, rating);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class DBFilmStorage implements FilmStorage {
                            "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
                            "JOIN films AS f ON f.id = fd.film_id " +
                            "LEFT JOIN (SELECT film_id, " +
-                                             "COUNT(user_id) rate " +
+                                             "AVG(rating) rate " +
                                       "FROM likes_list " +
                                       "GROUP BY film_id) r ON fd.id = r.film_id " +
                            "WHERE fd.director_id = ?" +
@@ -171,13 +171,16 @@ public class DBFilmStorage implements FilmStorage {
     public List<Film> getRecommendations(Long userId) {
         List<Film> recommendations = new ArrayList<>();
 
-        String similarUserQuery = "SELECT user_id, COUNT(film_id) as c " +
+        String similarUserQuery = "SELECT user_id, AVG(rating) as r " +
                                   "FROM likes_list " +
                                   "WHERE film_id IN (SELECT film_id " +
                                                     "FROM likes_list " +
                                                     "WHERE user_id = ?) AND user_id != ? " +
+                                                                       "AND rating IN (SELECT rating " +
+                                                                                      "FROM likes_list " +
+                                                                                      "WHERE user_id = ?) " +
                                   "GROUP BY user_id " +
-                                  "ORDER BY c DESC " +
+                                  "ORDER BY r DESC " +
                                   "LIMIT 1;";
 
         String recommendedFilmsQuery = "SELECT f.id, " +
@@ -192,9 +195,10 @@ public class DBFilmStorage implements FilmStorage {
                                        "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
                                        "WHERE l.film_id NOT IN (SELECT film_id " +
                                                                "FROM likes_list " +
-                                                               "WHERE user_id = ?) AND l.user_id = ? ;";
+                                                               "WHERE user_id = ?) AND l.user_id = ? " +
+                                                                                  "AND l.rating > 5;";
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(similarUserQuery, userId, userId);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(similarUserQuery, userId, userId, userId);
 
         if (!rowSet.next()) {
             return recommendations;
@@ -248,7 +252,7 @@ public class DBFilmStorage implements FilmStorage {
                           "LEFT JOIN likes_list AS l ON f.id = l.film_id " +
                           "WHERE (LOWER(d.name) LIKE ?) OR (LOWER(f.name) LIKE ?) " +
                           "GROUP BY f.id " +
-                          "ORDER BY COUNT(l.user_id) DESC;";
+                          "ORDER BY AVG(l.rating) DESC;";
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
     }
@@ -269,14 +273,16 @@ public class DBFilmStorage implements FilmStorage {
         return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
     }
 
-    public int getFilmLikeId(long film) {
-        String sqlQuery = "SELECT user_id FROM likes_list WHERE film_id = ?";
-        return jdbcTemplate.query(sqlQuery, this::createLikeId, film).size();
+    public double getFilmRating(long film) {
+        String sqlQuery = "SELECT rating FROM likes_list WHERE film_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::createRating, film).stream()
+                .mapToInt(Math::toIntExact)
+                .average()
+                .getAsDouble();
     }
 
-    private long createLikeId(ResultSet rs, int rowNum) throws SQLException {
-        String user_id = "user_id";
-        return rs.getLong(user_id);
+    private long createRating(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getInt("rating");
     }
 
 }

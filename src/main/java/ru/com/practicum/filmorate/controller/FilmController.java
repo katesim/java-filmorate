@@ -9,6 +9,7 @@ import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.FilmService;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 
@@ -40,8 +41,8 @@ public class FilmController {
     }
 
     @PutMapping(value = "/films/{id}/like/{userId}")
-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.addLike(id, userId);
+    public void addLike(@PathVariable Long id, @PathVariable Long userId, @RequestParam @Positive int rating) {
+        filmService.addLike(id, userId, rating);
         Event event = Event.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
@@ -75,9 +76,7 @@ public class FilmController {
     }
 
     @GetMapping(value = "/films/common")
-    public List<Film> getCommonFilms(
-            @RequestParam long userId,
-            @RequestParam long friendId){
+    public List<Film> getCommonFilms(@RequestParam long userId, @RequestParam long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 

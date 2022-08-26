@@ -54,9 +54,13 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public void addLike(Long id, Long userId) throws NotFoundException {
+    public void addLike(Long id, Long userId, int rating) throws NotFoundException {
         Film film = filmStorage.getById(id);
-        filmStorage.addLike(id, userId);
+
+        if (rating < 11) {
+            filmStorage.addLike(id, userId, rating);
+        }
+
         log.info("Фильм с id={} лайкнул пользователь {}", film.getId(), userId);
     }
 
@@ -72,7 +76,7 @@ public class FilmService {
     public List<Film> getTop(Integer count, Long genreId, Integer year) {
         return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
                 .sorted((f1, f2) ->
-                        (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
+                        (int) (dbFilmStorage.getFilmRating(f2.getId()) - dbFilmStorage.getFilmRating(f1.getId())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
