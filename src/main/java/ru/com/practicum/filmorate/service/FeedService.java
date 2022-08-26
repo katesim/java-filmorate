@@ -11,10 +11,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FeedService {
     private final FeedStorage feedStorage;
-    private final UserService userService;
 
     public List<Event> getByUserId(Long userId) {
-        userService.getById(userId);
         return feedStorage.getByUserId(userId);
     }
 

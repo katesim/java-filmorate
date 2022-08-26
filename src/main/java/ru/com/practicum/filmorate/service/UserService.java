@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.User;
+import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.storage.user.UserStorage;
 import ru.com.practicum.filmorate.validator.UserValidator;
 
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
     private final FilmService filmService;
+    private final FeedService feedService;
 
     public List<User> getAll() {
         return userStorage.getAll();
@@ -47,11 +47,31 @@ public class UserService {
         User friend = getById(friendId);
         userStorage.makeFriends(id, friendId);
         log.info("Пользователь {} теперь друг {}", friendId, id);
+
+        Event event = Event.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(id)
+                .eventType(EventTypes.FRIEND)
+                .operation(OperationTypes.ADD)
+                .entityId(friendId)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     public void removeFriends(Long id, Long friendId) throws NotFoundException {
         userStorage.removeFriends(id, friendId);
         log.info("Пользователь {} больше не друг {}", friendId, id);
+
+        Event event = Event.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(id)
+                .eventType(EventTypes.FRIEND)
+                .operation(OperationTypes.REMOVE)
+                .entityId(friendId)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
