@@ -129,7 +129,7 @@ public class DBFilmStorage implements FilmStorage {
     public List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy) {
         String sqlQuery;
         switch (sortBy) {
-            case year:
+            case YEAR:
                 sqlQuery = "SELECT f.id, " +
                                   "f.name, " +
                                   "f.description, " +
@@ -143,7 +143,7 @@ public class DBFilmStorage implements FilmStorage {
                            "WHERE fd.director_id = ?" +
                            "ORDER BY f.release_date;";
                 break;
-            case likes:
+            case LIKES:
                 sqlQuery = "SELECT f.id, " +
                                   "f.name, " +
                                   "f.description, " +
@@ -210,12 +210,12 @@ public class DBFilmStorage implements FilmStorage {
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
         String sqlQuery = "SELECT film_id " +
-                "FROM likes_list " +
-                "WHERE user_id = ? " +
-                "INTERSECT SELECT film_id " +
-                "FROM likes_list " +
-                "WHERE user_id = ?" +
-                "GROUP BY user_id";
+                          "FROM likes_list " +
+                          "WHERE user_id = ? " +
+                          "INTERSECT SELECT film_id " +
+                          "FROM likes_list " +
+                          "WHERE user_id = ?" +
+                          "GROUP BY user_id";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId);
         List<Film> commonFilms = new ArrayList<>();
         while (rowSet.next()) {
@@ -234,32 +234,27 @@ public class DBFilmStorage implements FilmStorage {
         if (titleSubstring.length() != 0) {
             title = "%" + titleSubstring.toLowerCase(Locale.ROOT) + "%";
         }
-        String sqlQuery =
-                "SELECT f.id, " +
-                        "f.name, " +
-                        "f.description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name AS mpa_name " +
-                    "FROM films AS f " +
-                    "JOIN MPA_ratings AS m " +
-                        "ON m.id = f.mpa_id " +
-                    "LEFT JOIN films_directors AS fd " +
-                        "ON f.id = fd.film_id " +
-                    "LEFT JOIN directors AS d " +
-                        "ON fd.director_id = d.id " +
-                    "LEFT JOIN likes_list AS l " +
-                        "ON f.id = l.film_id " +
-                    "WHERE (LOWER(d.name) LIKE ?) " +
-                        "OR (LOWER(f.name) LIKE ?) " +
-                    "GROUP BY f.id " +
-                    "ORDER BY COUNT(l.user_id) DESC;";
+        String sqlQuery = "SELECT f.id, " +
+                                 "f.name, " +
+                                 "f.description, " +
+                                 "f.release_date, " +
+                                 "f.duration, " +
+                                 "f.mpa_id, " +
+                                 "m.name AS mpa_name " +
+                          "FROM films AS f " +
+                          "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
+                          "LEFT JOIN films_directors AS fd ON f.id = fd.film_id " +
+                          "LEFT JOIN directors AS d ON fd.director_id = d.id " +
+                          "LEFT JOIN likes_list AS l ON f.id = l.film_id " +
+                          "WHERE (LOWER(d.name) LIKE ?) OR (LOWER(f.name) LIKE ?) " +
+                          "GROUP BY f.id " +
+                          "ORDER BY COUNT(l.user_id) DESC;";
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
     }
 
-    private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
+    private Film makeFilm(ResultSet rs, GenreService genreService,
+                          DirectorService directorService) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
@@ -283,4 +278,5 @@ public class DBFilmStorage implements FilmStorage {
         String user_id = "user_id";
         return rs.getLong(user_id);
     }
+
 }

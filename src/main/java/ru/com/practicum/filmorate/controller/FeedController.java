@@ -18,4 +18,5 @@ public class FeedController {
     public List<Event> findById(@PathVariable Long id) {
         return feedService.getByUserId(id);
     }
+
 }

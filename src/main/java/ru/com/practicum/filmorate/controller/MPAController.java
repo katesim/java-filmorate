@@ -23,4 +23,5 @@ public class MPAController {
     public MPA findById(@PathVariable Long id) {
         return mpaService.getById(id);
     }
+
 }

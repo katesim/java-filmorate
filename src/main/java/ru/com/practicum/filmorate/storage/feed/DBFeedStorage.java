@@ -22,22 +22,21 @@ public class DBFeedStorage implements FeedStorage {
 
     @Override
     public List<Event> getByUserId(Long userId) {
-        String sqlQuery =
-                "SELECT f.id, " +
-                        "f.created_at, " +
-                        "f.user_id, " +
-                        "f.event_type, " +
-                        "f.operation, " +
-                        "f.entity_id " +
-                "FROM feed AS f " +
-                "WHERE f.user_id = ?;";
+        String sqlQuery = "SELECT f.id, " +
+                                 "f.created_at, " +
+                                 "f.user_id, " +
+                                 "f.event_type, " +
+                                 "f.operation, " +
+                                 "f.entity_id " +
+                          "FROM feed AS f " +
+                          "WHERE f.user_id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeEvent(rs), userId);
     }
 
     @Override
     public Event addEvent(Event event) {
         String sqlQuery = "INSERT INTO feed (created_at, user_id, event_type, operation, entity_id) " +
-                "VALUES (?, ?, ?, ?, ?);";
+                          "VALUES (?, ?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});

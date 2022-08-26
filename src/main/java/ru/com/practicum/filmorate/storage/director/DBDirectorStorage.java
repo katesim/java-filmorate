@@ -117,4 +117,5 @@ public class DBDirectorStorage implements DirectorStorage {
         String name = rs.getString("name");
         return new Director(id, name);
     }
+
 }
