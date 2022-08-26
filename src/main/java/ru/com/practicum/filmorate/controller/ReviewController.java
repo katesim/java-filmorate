@@ -3,11 +3,7 @@ package ru.com.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Event;
-import ru.com.practicum.filmorate.model.EventTypes;
-import ru.com.practicum.filmorate.model.OperationTypes;
 import ru.com.practicum.filmorate.model.Review;
-import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
@@ -18,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
-    private final FeedService feedService;
 
     @GetMapping("/reviews")
     public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
@@ -33,46 +28,17 @@ public class ReviewController {
 
     @PostMapping("/reviews")
     public Review add(@Valid @RequestBody Review review) {
-        Review createdReview = reviewService.add(review);
-        Event event = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(createdReview.getUserId())
-                .eventType(EventTypes.REVIEW)
-                .operation(OperationTypes.ADD)
-                .entityId(createdReview.getReviewId())
-                .eventId(0L)
-                .build();
-        feedService.addEvent(event);
-        return createdReview;
+        return reviewService.add(review);
     }
 
     @PutMapping("/reviews")
     public Review update(@Valid @RequestBody Review review) {
-        Review updatedReview = reviewService.update(review);
-        Event event = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(updatedReview.getUserId())
-                .eventType(EventTypes.REVIEW)
-                .operation(OperationTypes.UPDATE)
-                .entityId(updatedReview.getReviewId())
-                .eventId(0L)
-                .build();
-        feedService.addEvent(event);
-        return updatedReview;
+        return reviewService.update(review);
     }
 
     @DeleteMapping("/reviews/{id}")
     public void deleteById(@PathVariable long id) {
-        Review review = reviewService.deleteById(id);
-        Event event = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(review.getUserId())
-                .eventType(EventTypes.REVIEW)
-                .operation(OperationTypes.REMOVE)
-                .entityId(review.getReviewId())
-                .eventId(0L)
-                .build();
-        feedService.addEvent(event);
+       reviewService.deleteById(id);
     }
 
     @PutMapping("/reviews/{id}/like/{userId}")
