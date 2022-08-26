@@ -27,4 +27,5 @@ public class FilmValidator {
             throw new ValidationException("Продолжительность должна быть положительной");
         }
     }
+
 }

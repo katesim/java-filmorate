@@ -17,18 +17,25 @@ public class ReviewService {
     private final FilmService filmService;
     private final UserService userService;
 
+    public List<Review> getFilmsReviews(Long filmId, int count) {
+        if (filmId == null) {
+            return getAll();
+        }
+        return getByFilmId(filmId, count);
+    }
+
     public Review getById(long id) throws NotFoundException {
         return reviewStorage.getById(id);
     }
 
     public Review add(Review review) {
-        filmService.getById(review.getFilmId()); // проверяем существование фильма
-        userService.getById(review.getUserId()); // проверяем существование пользователя
+        filmService.getById(review.getFilmId());
+        userService.getById(review.getUserId());
         return reviewStorage.add(review);
     }
 
     public Review update(Review review) {
-        getById(review.getReviewId()); // проверяем наличие отзыва
+        getById(review.getReviewId());
         return reviewStorage.update(review);
     }
 
@@ -39,46 +46,40 @@ public class ReviewService {
     }
 
     public void addLike(long reviewId, long userId) {
-        getById(reviewId); // проверяем существование отзыва
-        userService.getById(userId); // проверяем существование пользователя
+        getById(reviewId);
+        userService.getById(userId);
         reviewStorage.addLike(reviewId, userId);
     }
 
     public void removeLike(long reviewId, long userId) {
-        getById(reviewId); // проверяем существование отзыва
-        userService.getById(userId); // проверяем существование пользователя
+        getById(reviewId);
+        userService.getById(userId);
         reviewStorage.removeLike(reviewId, userId);
     }
 
     public void addDislike(long reviewId, long userId) {
-        getById(reviewId); // проверяем существование отзыва
-        userService.getById(userId); // проверяем существование пользователя
+        getById(reviewId);
+        userService.getById(userId);
         reviewStorage.addDislike(reviewId, userId);
     }
 
     public void removeDislike(long reviewId, long userId) {
-        getById(reviewId); // проверяем существование отзыва
-        userService.getById(userId); // проверяем существование пользователя
+        getById(reviewId);
+        userService.getById(userId);
         reviewStorage.removeDislike(reviewId, userId);
     }
 
-    public List<Review> getAll() { // получаем все отзывы на все фильмы
+    private List<Review> getAll() {
         return reviewStorage.getAll().stream()
                 .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                 .collect(Collectors.toList());
     }
 
-    public List<Review> getByFilmId(long filmId, int limit) { // получаем отзывы к нужному фильму
+    private List<Review> getByFilmId(long filmId, int limit) {
         return reviewStorage.getByFilmId(filmId).stream()
                 .sorted(Comparator.comparingLong(Review::getUseful).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
     }
 
-    public List<Review> get (Long filmId, int count) {
-        if (filmId == null) {
-            return getAll();
-        }
-        return getByFilmId(filmId, count);
-    }
 }

@@ -71,7 +71,8 @@ public class FilmService {
 
     public List<Film> getTop(Integer count, Long genreId, Integer year) {
         return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
-                .sorted((f1, f2) -> (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
+                .sorted((f1, f2) ->
+                        (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -118,4 +119,5 @@ public class FilmService {
                 throw new IllegalStateException("Unexpected value: " + by);
         }
     }
+
 }

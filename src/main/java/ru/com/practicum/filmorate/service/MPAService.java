@@ -21,4 +21,5 @@ public class MPAService {
     public MPA getById(Long id) throws NotFoundException {
         return mpaStorage.getById(id);
     }
+
 }

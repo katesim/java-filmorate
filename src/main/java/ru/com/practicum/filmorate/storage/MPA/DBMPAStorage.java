@@ -43,4 +43,5 @@ public class DBMPAStorage implements MPAStorage {
         String name = rs.getString("name");
         return new MPA(id, name);
     }
+
 }

@@ -78,4 +78,5 @@ public class DBGenreStorage implements GenreStorage {
         String name = rs.getString("name");
         return new Genre(id, name);
     }
+
 }
