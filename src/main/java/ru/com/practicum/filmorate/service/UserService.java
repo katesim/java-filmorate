@@ -11,6 +11,7 @@ import ru.com.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -77,4 +78,11 @@ public class UserService {
         userStorage.getById(userId);
         return filmService.getRecommendations(userId);
     }
+
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        List<User> first = getAllFriends(id);
+        List<User> second = getAllFriends(otherId);
+        return first.stream().filter(second::contains).collect(Collectors.toList());
+    }
+
 }

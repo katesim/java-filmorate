@@ -25,4 +25,5 @@ public interface ReviewStorage {
     void removeDislike(long reviewId, long userId);
 
     List<Review> getByFilmId(long filmId);
+
 }

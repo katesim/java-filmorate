@@ -17,9 +17,7 @@ import javax.validation.ConstraintViolationException;
 public class ErrorHandler {
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handleValidationException(
-            ValidationException exception
-    ) {
+    public ResponseEntity<String> handleValidationException(ValidationException exception) {
         log.error(exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -33,9 +31,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(
-            NotFoundException exception
-    ) {
+    public ResponseEntity<String> handleNotFoundException(NotFoundException exception) {
         log.error(exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -43,12 +39,11 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(
-            Throwable exception
-    ) {
+    public ResponseEntity<String> handleException(Throwable exception) {
         log.error(exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
+
 }

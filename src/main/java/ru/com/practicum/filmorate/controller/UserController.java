@@ -5,16 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
-import ru.com.practicum.filmorate.model.Event;
-import ru.com.practicum.filmorate.model.EventTypes;
-import ru.com.practicum.filmorate.model.OperationTypes;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.User;
+import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.service.FeedService;
 import ru.com.practicum.filmorate.service.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -78,9 +73,7 @@ public class UserController {
 
     @GetMapping(value = "/users/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        List<User> first = userService.getAllFriends(id);
-        List<User> second = userService.getAllFriends(otherId);
-        return first.stream().filter(second::contains).collect(Collectors.toList());
+        return userService.getCommonFriends(id, otherId);
     }
 
     @DeleteMapping(value = "/users/{userId}")
@@ -92,4 +85,5 @@ public class UserController {
     public List<Film> getRecommendations(@PathVariable Long id) {
         return userService.getRecommendations(id);
     }
+
 }

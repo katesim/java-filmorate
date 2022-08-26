@@ -9,4 +9,5 @@ public interface MPAStorage {
     List<MPA> getAll();
 
     MPA getById(Long id) throws NotFoundException;
+
 }

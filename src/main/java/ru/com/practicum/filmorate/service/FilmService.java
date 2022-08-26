@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
@@ -71,7 +70,8 @@ public class FilmService {
 
     public List<Film> getTop(Integer count, Long genreId, Integer year) {
         return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
-                .sorted((f1, f2) -> (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
+                .sorted((f1, f2) ->
+                        (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -96,7 +96,7 @@ public class FilmService {
         log.info("Фильм c id {} удален", filmId);
     }
 
-    public List<Film> getFilmsByDirectorId(Long directorId, SortingTypes sortBy) throws NotFoundException {
+    public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) throws NotFoundException {
         directorService.getById(directorId);
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
@@ -118,4 +118,5 @@ public class FilmService {
                 throw new IllegalStateException("Unexpected value: " + by);
         }
     }
+
 }

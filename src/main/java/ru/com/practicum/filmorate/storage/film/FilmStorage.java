@@ -2,7 +2,6 @@ package ru.com.practicum.filmorate.storage.film;
 
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.SortingTypes;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public interface FilmStorage {
 
     List<Film> getCommonFilms(long userId, long friendId);
 
-    List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy);
+    List<Film> getFilmsByDirectorId(Long id, String sortBy);
 
     List<Film> getRecommendations(Long userId);
     
