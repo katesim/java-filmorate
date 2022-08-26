@@ -74,4 +74,11 @@ public class ReviewService {
                 .limit(limit)
                 .collect(Collectors.toList());
     }
+
+    public List<Review> get (Long filmId, int count) {
+        if (filmId == null) {
+            return getAll();
+        }
+        return getByFilmId(filmId, count);
+    }
 }
