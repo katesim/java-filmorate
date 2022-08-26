@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.model.SortingTypes;
 import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
@@ -96,7 +97,7 @@ public class FilmService {
         log.info("Фильм c id {} удален", filmId);
     }
 
-    public List<Film> getFilmsByDirectorId(Long directorId, String sortBy) throws NotFoundException {
+    public List<Film> getFilmsByDirectorId(Long directorId, SortingTypes sortBy) throws NotFoundException {
         directorService.getById(directorId);
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }

@@ -126,9 +126,9 @@ public class DBFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByDirectorId(Long id, String sortBy) {
+    public List<Film> getFilmsByDirectorId(Long id, SortingTypes sortBy) {
         String sqlQuery;
-        switch (Enum.valueOf(SortingTypes.class, sortBy.toUpperCase())) {
+        switch (sortBy) {
             case YEAR:
                 sqlQuery = "SELECT f.id, " +
                                   "f.name, " +

@@ -89,7 +89,7 @@ public class FilmController {
     @GetMapping(value = "/films/director/{directorId}")
     public List<Film> getFilmsByDirectorId(@PathVariable Long directorId,
                                            @RequestParam String sortBy) throws NotFoundException {
-        return filmService.getFilmsByDirectorId(directorId, sortBy);
+        return filmService.getFilmsByDirectorId(directorId, Enum.valueOf(SortingTypes.class, sortBy.toUpperCase()));
     }
 
     @GetMapping(value = "/films/search")
