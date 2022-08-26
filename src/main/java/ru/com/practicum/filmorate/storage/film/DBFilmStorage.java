@@ -259,7 +259,10 @@ public class DBFilmStorage implements FilmStorage {
                 (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
     }
 
-    private Film makeFilm(ResultSet rs, GenreService genreService, DirectorService directorService) throws SQLException {
+    private Film makeFilm(ResultSet rs,
+                          GenreService genreService,
+                          DirectorService directorService) throws SQLException {
+
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
