@@ -128,14 +128,14 @@ public class FilmService {
 
     public List<Film> searchFilms(String query, String by) {
 
-        if (by.contains("director")) {
-            return filmStorage.searchFilms(query, "");
-        } else if (by.contains("title")) {
-            return filmStorage.searchFilms("", query);
-        } else if (by.contains("director") && by.contains("title")) {
+        if (by.contains("director") && by.contains("title")) {
             return filmStorage.searchFilms(query, query);
+        } else if (by.contains("director")) {
+                return filmStorage.searchFilms(query, "");
+        } else if (by.contains("title")) {
+                return filmStorage.searchFilms("", query);
         } else {
-            throw new IllegalStateException("Unexpected value: " + by);
+                throw new IllegalStateException("Unexpected value: " + by);
         }
     }
 
