@@ -266,7 +266,10 @@ public class DBFilmStorage implements FilmStorage {
                 rs.getString("mpa_name")
         );
         List<Director> directors = directorService.getByFilmId(id);
-        return new Film(id, name, description, releaseDate, duration, genres, mpa, directors);
+        Film film = new Film(id, name, description, releaseDate, duration, mpa);
+        film.getGenres().addAll(genres);
+        film.getDirectors().addAll(directors);
+        return film;
     }
 
     public int getFilmLikeId(long film) {
