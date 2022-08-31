@@ -2,12 +2,11 @@ package ru.com.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.model.SortingTypes;
+import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
 
@@ -103,16 +102,6 @@ public class FilmService {
     }
 
     public List<Film> searchFilms(String query, String by) {
-        switch (by) {
-            case "director":
-                return filmStorage.searchFilms(query, "");
-            case "title":
-                return filmStorage.searchFilms("", query);
-            case "director,title":
-            case "title,director":
-                return filmStorage.searchFilms(query, query);
-            default:
-                throw new IllegalStateException("Unexpected value: " + by);
-        }
+        return filmStorage.searchFilms(query, by);
     }
 }

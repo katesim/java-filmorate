@@ -1,6 +1,5 @@
 package ru.com.practicum.filmorate.storage.director;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class DBDirectorStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -98,15 +96,16 @@ public class DBDirectorStorage implements DirectorStorage {
         jdbcTemplate.batchUpdate(
                 "INSERT INTO films_directors (director_id, film_id) VALUES (?, ?);",
                 new BatchPreparedStatementSetter() {
-                    public void setValues (PreparedStatement statement,int i) throws SQLException {
+                    public void setValues(PreparedStatement statement, int i) throws SQLException {
                         statement.setLong(1, directorsDistinct.get(i).getId());
                         statement.setLong(2, filmId);
                     }
-                    public int getBatchSize () {
+
+                    public int getBatchSize() {
                         return directorsDistinct.size();
                     }
                 }
-                );
+        );
     }
 
     @Override

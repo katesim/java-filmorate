@@ -1,7 +1,6 @@
 package ru.com.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
@@ -12,7 +11,6 @@ import ru.com.practicum.filmorate.service.FilmService;
 import java.util.List;
 
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class FilmController {
@@ -58,7 +56,7 @@ public class FilmController {
     @GetMapping(value = "/films/common")
     public List<Film> getCommonFilms(
             @RequestParam long userId,
-            @RequestParam long friendId){
+            @RequestParam long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 
@@ -75,6 +73,6 @@ public class FilmController {
 
     @GetMapping(value = "/films/search")
     public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
-       return filmService.searchFilms(query, by);
+        return filmService.searchFilms(query, by);
     }
 }
