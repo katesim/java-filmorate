@@ -10,7 +10,6 @@ import ru.com.practicum.filmorate.service.FilmService;
 
 import java.util.List;
 
-
 @RestController
 @RequiredArgsConstructor
 public class FilmController {
@@ -67,12 +66,13 @@ public class FilmController {
 
     @GetMapping(value = "/films/director/{directorId}")
     public List<Film> getFilmsByDirectorId(@PathVariable Long directorId,
-                                           @RequestParam SortingTypes sortBy) throws NotFoundException {
-        return filmService.getFilmsByDirectorId(directorId, sortBy);
+                                           @RequestParam String sortBy) throws NotFoundException {
+        return filmService.getFilmsByDirectorId(directorId, Enum.valueOf(SortingTypes.class, sortBy.toUpperCase()));
     }
 
     @GetMapping(value = "/films/search")
     public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
         return filmService.searchFilms(query, by);
     }
+    
 }

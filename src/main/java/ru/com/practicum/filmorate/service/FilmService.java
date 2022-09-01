@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.com.practicum.filmorate.exception.NotFoundException;
-import ru.com.practicum.filmorate.model.Film;
-import ru.com.practicum.filmorate.model.SortingTypes;
+import ru.com.practicum.filmorate.model.*;
 import ru.com.practicum.filmorate.storage.film.DBFilmStorage;
 import ru.com.practicum.filmorate.storage.film.FilmStorage;
 import ru.com.practicum.filmorate.validator.FilmValidator;
@@ -23,6 +22,7 @@ public class FilmService {
     private final GenreService genreService;
     private final DBFilmStorage dbFilmStorage;
     private final DirectorService directorService;
+    private final FeedService feedService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -58,6 +58,16 @@ public class FilmService {
         Film film = filmStorage.getById(id);
         filmStorage.addLike(id, userId);
         log.info("Фильм с id={} лайкнул пользователь {}", film.getId(), userId);
+
+        Event event = Event.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(userId)
+                .eventType(EventTypes.LIKE)
+                .operation(OperationTypes.ADD)
+                .entityId(id)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     public void removeLike(Long id, Long userId) throws NotFoundException {
@@ -67,11 +77,22 @@ public class FilmService {
         }
         filmStorage.removeLike(id, userId);
         log.info("Пользователь {} удалил лайк с фильма с id={}", userId, film.getId());
+
+        Event event = Event.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(userId)
+                .eventType(EventTypes.LIKE)
+                .operation(OperationTypes.REMOVE)
+                .entityId(id)
+                .eventId(0L)
+                .build();
+        feedService.addEvent(event);
     }
 
     public List<Film> getTop(Integer count, Long genreId, Integer year) {
         return getFilterFilmsByGenreId(getFilterFilmsByYear(filmStorage.getAll().stream(), year), genreId)
-                .sorted((f1, f2) -> (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
+                .sorted((f1, f2) ->
+                        (dbFilmStorage.getFilmLikeId(f2.getId()) - dbFilmStorage.getFilmLikeId(f1.getId())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -104,4 +125,9 @@ public class FilmService {
     public List<Film> searchFilms(String query, String by) {
         return filmStorage.searchFilms(query, by);
     }
+
+    public List<Film> getRecommendations(Long userId) {
+        return filmStorage.getRecommendations(userId);
+    }
+    
 }

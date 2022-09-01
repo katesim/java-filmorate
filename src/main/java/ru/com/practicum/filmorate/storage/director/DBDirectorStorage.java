@@ -25,20 +25,18 @@ public class DBDirectorStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAll() {
-        String sqlQuery =
-                "SELECT d.id, " +
-                        "d.name " +
-                        "FROM directors AS d;";
+        String sqlQuery = "SELECT d.id, " +
+                                 "d.name " +
+                          "FROM directors AS d;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs));
     }
 
     @Override
     public Director getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT d.id, " +
-                        "d.name " +
-                        "FROM directors AS d " +
-                        "WHERE d.id = ?;";
+        String sqlQuery = "SELECT d.id, " +
+                                 "d.name " +
+                          "FROM directors AS d " +
+                          "WHERE d.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs), id)
                 .stream()
                 .findAny()
@@ -47,12 +45,11 @@ public class DBDirectorStorage implements DirectorStorage {
 
     @Override
     public List<Director> getByFilmId(Long filmId) throws NotFoundException {
-        String sqlQuery =
-                "SELECT d.id, " +
-                        "d.name " +
-                        "FROM films_directors AS fd " +
-                        "JOIN directors AS d ON fd.director_id = d.id " +
-                        "WHERE fd.film_id = ?;";
+        String sqlQuery = "SELECT d.id, " +
+                                 "d.name " +
+                          "FROM films_directors AS fd " +
+                          "JOIN directors AS d ON fd.director_id = d.id " +
+                          "WHERE fd.film_id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeDirector(rs), filmId);
     }
 
@@ -119,4 +116,5 @@ public class DBDirectorStorage implements DirectorStorage {
         String name = rs.getString("name");
         return new Director(id, name);
     }
+
 }

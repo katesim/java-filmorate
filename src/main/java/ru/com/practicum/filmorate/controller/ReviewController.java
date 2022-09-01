@@ -18,12 +18,7 @@ public class ReviewController {
     @GetMapping("/reviews")
     public List<Review> getFilmsReviews(@RequestParam(required = false) @Positive Long filmId,
                                         @RequestParam(defaultValue = "10", required = false) @Positive int count) {
-
-        if (filmId == null) {
-            return reviewService.getAll();
-        } else {
-            return reviewService.getByFilmId(filmId, count);
-        }
+        return reviewService.getFilmsReviews(filmId, count);
     }
 
     @GetMapping("/reviews/{id}")
@@ -65,4 +60,5 @@ public class ReviewController {
     public void removeDislike(@PathVariable long id, @PathVariable long userId) {
         reviewService.removeDislike(id, userId);
     }
+
 }

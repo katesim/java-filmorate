@@ -10,4 +10,5 @@ public class DirectorValidator {
             throw new ValidationException("Имя не может быть пустым");
         }
     }
+
 }

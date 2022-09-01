@@ -22,20 +22,18 @@ public class DBGenreStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAll() {
-        String sqlQuery =
-                "SELECT g.id, " +
-                       "g.name " +
-                "FROM genres AS g;";
+        String sqlQuery = "SELECT g.id, " +
+                                 "g.name " +
+                          "FROM genres AS g;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
     public Genre getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT g.id, " +
-                       "g.name " +
-                "FROM genres AS g " +
-                "WHERE g.id = ?;";
+        String sqlQuery = "SELECT g.id, " +
+                                 "g.name " +
+                          "FROM genres AS g " +
+                          "WHERE g.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs), id)
                 .stream()
                 .findAny()
@@ -44,12 +42,11 @@ public class DBGenreStorage implements GenreStorage {
 
     @Override
     public List<Genre> getByFilmId(Long filmId) throws NotFoundException {
-        String sqlQuery =
-                "SELECT g.id, " +
-                        "g.name " +
-                "FROM films_genres AS fg " +
-                "JOIN genres AS g ON fg.genre_id = g.id " +
-                "WHERE fg.film_id = ?;";
+        String sqlQuery = "SELECT g.id, " +
+                                 "g.name " +
+                          "FROM films_genres AS fg " +
+                          "JOIN genres AS g ON fg.genre_id = g.id " +
+                          "WHERE fg.film_id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs), filmId);
     }
 
@@ -81,4 +78,5 @@ public class DBGenreStorage implements GenreStorage {
         String name = rs.getString("name");
         return new Genre(id, name);
     }
+
 }
