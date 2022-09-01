@@ -1,6 +1,5 @@
 package ru.com.practicum.filmorate.storage.director;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class DBDirectorStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 

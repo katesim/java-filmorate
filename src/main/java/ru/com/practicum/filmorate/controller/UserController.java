@@ -1,22 +1,19 @@
 package ru.com.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.com.practicum.filmorate.exception.NotFoundException;
 import ru.com.practicum.filmorate.exception.ValidationException;
-import ru.com.practicum.filmorate.model.*;
-import ru.com.practicum.filmorate.service.FeedService;
+import ru.com.practicum.filmorate.model.Film;
+import ru.com.practicum.filmorate.model.User;
 import ru.com.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final FeedService feedService;
 
     @GetMapping("/users")
     public List<User> findAll() {
@@ -41,29 +38,11 @@ public class UserController {
     @PutMapping(value = "/users/{id}/friends/{friendId}")
     public void makeFriends(@PathVariable Long id, @PathVariable Long friendId) throws NotFoundException {
         userService.makeFriends(id, friendId);
-        Event event = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(id)
-                .eventType(EventTypes.FRIEND)
-                .operation(OperationTypes.ADD)
-                .entityId(friendId)
-                .eventId(0L)
-                .build();
-        feedService.addEvent(event);
     }
 
     @DeleteMapping(value = "/users/{id}/friends/{friendId}")
     public void removeFriends(@PathVariable Long id, @PathVariable Long friendId) {
         userService.removeFriends(id, friendId);
-        Event event = Event.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(id)
-                .eventType(EventTypes.FRIEND)
-                .operation(OperationTypes.REMOVE)
-                .entityId(friendId)
-                .eventId(0L)
-                .build();
-        feedService.addEvent(event);
     }
 
     @GetMapping(value = "/users/{id}/friends")
