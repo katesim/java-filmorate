@@ -43,6 +43,7 @@ public class DBFilmStorage implements FilmStorage {
                                  "m.name AS mpa_name " +
                           "FROM films AS f " +
                           "JOIN MPA_ratings AS m ON m.id = f.mpa_id;";
+
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService));
     }
 
@@ -58,6 +59,7 @@ public class DBFilmStorage implements FilmStorage {
                           "FROM films AS f " +
                           "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
                           "WHERE f.id = ?;";
+
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService, directorService), id)
                 .stream()
                 .findAny()
@@ -223,34 +225,45 @@ public class DBFilmStorage implements FilmStorage {
         }
         return commonFilms;
     }
-    
+
     @Override
-    public List<Film> searchFilms(String directorSubstring, String titleSubstring) {
-        String director = "";
-        String title = "";
-        if (directorSubstring.length() != 0) {
-            director = "%" + directorSubstring.toLowerCase(Locale.ROOT) + "%";
+    public List<Film> searchFilms(String substring, String by) {
+        String insertParameter;
+        switch (by) {
+            case "director":
+                insertParameter = "(LOWER(d.name) LIKE %s) ";
+                insertParameter = String.format(insertParameter, "'%" + substring.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "title":
+                insertParameter = "(LOWER(f.name) LIKE %s) ";
+                insertParameter = String.format(insertParameter, "'%" + substring.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            case "director,title":
+            case "title,director":
+                insertParameter = "(LOWER(d.name) LIKE %1$s) OR (LOWER(f.name) LIKE %1$s) ";
+                insertParameter = String.format(insertParameter, "'%" + substring.toLowerCase(Locale.ROOT) + "%'");
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + by);
         }
-        if (titleSubstring.length() != 0) {
-            title = "%" + titleSubstring.toLowerCase(Locale.ROOT) + "%";
-        }
-        String sqlQuery = "SELECT f.id, " +
-                                 "f.name, " +
-                                 "f.description, " +
-                                 "f.release_date, " +
-                                 "f.duration, " +
-                                 "f.mpa_id, " +
-                                 "m.name AS mpa_name " +
-                          "FROM films AS f " +
-                          "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
-                          "LEFT JOIN films_directors AS fd ON f.id = fd.film_id " +
-                          "LEFT JOIN directors AS d ON fd.director_id = d.id " +
-                          "LEFT JOIN likes_list AS l ON f.id = l.film_id " +
-                          "WHERE (LOWER(d.name) LIKE ?) OR (LOWER(f.name) LIKE ?) " +
-                          "GROUP BY f.id " +
-                          "ORDER BY COUNT(l.user_id) DESC;";
+        String sqlQuery =
+                "SELECT f.id, " +
+                        "f.name, " +
+                        "f.description, " +
+                        "f.release_date, " +
+                        "f.duration, " +
+                        "f.mpa_id, " +
+                        "m.name AS mpa_name " +
+                 "FROM films AS f " +
+                 "JOIN MPA_ratings AS m ON m.id = f.mpa_id " +
+                 "LEFT JOIN films_directors AS fd ON f.id = fd.film_id " +
+                 "LEFT JOIN directors AS d ON fd.director_id = d.id " +
+                 "LEFT JOIN likes_list AS l ON f.id = l.film_id " +
+                 "WHERE " + insertParameter +
+                 "GROUP BY f.id " +
+                 "ORDER BY COUNT(l.user_id) DESC;";
         return jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> makeFilm(rs, genreService, directorService), director, title);
+                (rs, rowNum) -> makeFilm(rs, genreService, directorService));
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService,

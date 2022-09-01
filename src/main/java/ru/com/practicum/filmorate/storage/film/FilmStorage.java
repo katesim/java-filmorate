@@ -30,5 +30,5 @@ public interface FilmStorage {
     List<Film> getRecommendations(Long userId);
     
     List<Film> searchFilms(String directorSubstring, String titleSubstring);
-
+    
 }

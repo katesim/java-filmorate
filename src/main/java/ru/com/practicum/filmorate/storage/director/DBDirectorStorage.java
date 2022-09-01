@@ -93,15 +93,16 @@ public class DBDirectorStorage implements DirectorStorage {
         jdbcTemplate.batchUpdate(
                 "INSERT INTO films_directors (director_id, film_id) VALUES (?, ?);",
                 new BatchPreparedStatementSetter() {
-                    public void setValues (PreparedStatement statement,int i) throws SQLException {
+                    public void setValues(PreparedStatement statement, int i) throws SQLException {
                         statement.setLong(1, directorsDistinct.get(i).getId());
                         statement.setLong(2, filmId);
                     }
-                    public int getBatchSize () {
+
+                    public int getBatchSize() {
                         return directorsDistinct.size();
                     }
                 }
-                );
+        );
     }
 
     @Override

@@ -55,7 +55,7 @@ public class FilmController {
     @GetMapping(value = "/films/common")
     public List<Film> getCommonFilms(
             @RequestParam long userId,
-            @RequestParam long friendId){
+            @RequestParam long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 
@@ -72,7 +72,7 @@ public class FilmController {
 
     @GetMapping(value = "/films/search")
     public List<Film> searchFilms(@RequestParam(name = "query") String query, @RequestParam(name = "by") String by) {
-       return filmService.searchFilms(query, by);
+        return filmService.searchFilms(query, by);
     }
-
+    
 }

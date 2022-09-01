@@ -122,21 +122,12 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 
+    public List<Film> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by);
+    }
+
     public List<Film> getRecommendations(Long userId) {
         return filmStorage.getRecommendations(userId);
     }
-
-    public List<Film> searchFilms(String query, String by) {
-
-        if (by.contains("director") && by.contains("title")) {
-            return filmStorage.searchFilms(query, query);
-        } else if (by.contains("director")) {
-                return filmStorage.searchFilms(query, "");
-        } else if (by.contains("title")) {
-                return filmStorage.searchFilms("", query);
-        } else {
-                throw new IllegalStateException("Unexpected value: " + by);
-        }
-    }
-
+    
 }
