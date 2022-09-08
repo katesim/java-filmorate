@@ -24,26 +24,24 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public List<User> getAll() {
-        String sqlQuery =
-                "SELECT u.id, " +
-                        "u.email, " +
-                        "u.login, " +
-                        "u.name, " +
-                        "u.birthday, " +
-                "FROM users AS u;";
+        String sqlQuery = "SELECT u.id, " +
+                                 "u.email, " +
+                                 "u.login, " +
+                                 "u.name, " +
+                                 "u.birthday, " +
+                          "FROM users AS u;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
     public User getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT u.id, " +
-                        "u.email, " +
-                        "u.login, " +
-                        "u.name, " +
-                        "u.birthday, " +
-                "FROM users AS u " +
-                "WHERE u.id = ?;";
+        String sqlQuery = "SELECT u.id, " +
+                                 "u.email, " +
+                                 "u.login, " +
+                                 "u.name, " +
+                                 "u.birthday, " +
+                          "FROM users AS u " +
+                          "WHERE u.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs), id)
                 .stream()
                 .findAny()
@@ -53,7 +51,7 @@ public class DBUserStorage implements UserStorage {
     @Override
     public User add(User user) {
         String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
-                "VALUES (?, ?, ?, ?);";
+                          "VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});
@@ -71,8 +69,8 @@ public class DBUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         String sqlQuery = "UPDATE users " +
-                "SET email = ?, login = ?, name = ?, birthday = ? " +
-                "WHERE id = ?;";
+                          "SET email = ?, login = ?, name = ?, birthday = ? " +
+                          "WHERE id = ?;";
         jdbcTemplate.update(
                 sqlQuery,
                 user.getEmail(),
@@ -85,9 +83,9 @@ public class DBUserStorage implements UserStorage {
     }
 
     @Override
-    public void delete(User user) {
+    public void delete(Long id) {
         String sqlQuery = "DELETE FROM users WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, user.getId());
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
@@ -104,10 +102,9 @@ public class DBUserStorage implements UserStorage {
 
     @Override
     public List<Long> getUserFriendsById(Long userId) throws NotFoundException {
-        String sqlQuery =
-                "SELECT fr.friend_id, " +
-                        "FROM friendships AS fr " +
-                        "WHERE fr.user_id = ?;";
+        String sqlQuery = "SELECT fr.friend_id, " +
+                          "FROM friendships AS fr " +
+                          "WHERE fr.user_id = ?;";
         return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
     }
 
@@ -117,8 +114,6 @@ public class DBUserStorage implements UserStorage {
         String login = rs.getString("login");
         String name = rs.getString("name");
         String birthday = rs.getDate("birthday").toString();
-
-        List<Long> friends = getUserFriendsById(id);
         return new User(id, email, login, name, birthday);
     }
 }
